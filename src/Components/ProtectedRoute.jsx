@@ -1,0 +1,37 @@
+import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import axios from "axios";
+
+const ProtectedRoute = ({ children }) => {
+  const token = useSelector((state) => state.auth.token);
+  const [isValid, setIsValid] = useState(null); 
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (!token) {
+        setIsValid(false);
+        return;
+      }
+      try {
+        const res = await axios.post(
+          "http://localhost:5000/api/auth/verify",
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setIsValid(res.data.valid);
+      } catch (err) {
+        setIsValid(false);
+      }
+    };
+
+    checkAuth();
+  }, [token]);
+
+  if (isValid === null) return <p>Loading...</p>; // show loader while checking
+  if (!isValid) return <Navigate to="/login" replace />;
+
+  return children;
+};
+
+export default ProtectedRoute;
