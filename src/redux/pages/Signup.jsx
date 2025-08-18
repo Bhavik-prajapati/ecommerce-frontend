@@ -2,6 +2,8 @@ import { useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { signupUser } from "../../store/authSlice";
+import { toast } from "react-toastify";
+
 
 const Signup = () => {
 
@@ -22,10 +24,9 @@ const Signup = () => {
         e.preventDefault();
       dispatch(signupUser(formdata)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-          alert("Signup succeeded ✅");
-        // navigate("/dashboard"); // redirect after successful login
+          toast.success("Signup successful 🎉");
       }else{
-          alert(res.payload);
+          toast.warning(res.payload);
       }
     });
     }

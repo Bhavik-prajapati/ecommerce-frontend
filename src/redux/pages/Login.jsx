@@ -2,6 +2,8 @@ import { useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../store/authSlice";
+import { toast } from "react-toastify";
+
 
 const Login = () => {
   const { user, error, loading } = useSelector(state => state.auth.login)
@@ -21,11 +23,11 @@ const Login = () => {
     dispatch(loginUser(formdata)).then((res) => {
 
       if (res.meta.requestStatus === "fulfilled") {
-        alert("Login succeeded ✅");
+        toast.success("Login successful 🎉");
         navigate("/dashboard");
 
       } else {
-        alert(res.payload);
+        toast.warning(res.payload);
       }
     });
 

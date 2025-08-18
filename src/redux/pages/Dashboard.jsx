@@ -1,8 +1,15 @@
 import React from 'react'
+import Header from '../../Components/Header'
+import Products from '../../Components/Products'
+import Footer from '../../Components/Footer'
 
 const Dashboard = () => {
   return (
-    <div>Dashboard</div>
+    <div>
+    <Header/>
+    <Products/>
+    <Footer/>
+    </div>
   )
 }
 
