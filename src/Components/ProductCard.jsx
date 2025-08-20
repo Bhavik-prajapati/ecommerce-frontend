@@ -1,47 +1,66 @@
 import CryptoJS from "crypto-js";
-import "./common.css"
-import { useNavigate } from 'react-router-dom';
-import { addToCart } from "../store/cartSlice";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { addToCart } from "../store/cartSlice";
 
 const ProductCard = ({ products }) => {
-    const navigate = useNavigate();
-    const dispatch=useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
-    const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+  return (
+    <>
+      {products.map((product) => (
+        <div
+          key={product.id}
+          className="bg-white rounded-2xl shadow hover:shadow-lg transition p-4 flex flex-col"
+        >
+          <img
+            src={product.image_url}
+            alt={product.name}
+            className="w-full h-60 object-cover rounded-lg"
+          />
 
-    return (
-        <>
-            {products.map(product => (
-                <div key={product.id} className="card">
-                    <img src={product.image_url} alt={product.name} className="card-image" />
-                    <div className="card-body">
-                        <h3 className="card-title">{product.name}</h3>
-                        <p className="card-text">{product.description}</p>
-                        <p className="card-price">{product.price}</p>
-                        <div className='btns'>
+          <div className="mt-4 flex flex-col flex-grow">
+            <h3 className="text-lg font-semibold text-gray-800">
+              {product.name}
+            </h3>
+            <p className="text-sm text-gray-500 mt-1 flex-grow">
+              {product.description}
+            </p>
+            <p className="text-indigo-600 font-bold mt-2">₹{product.price}</p>
 
+            <div className="mt-4 flex space-x-3">
+              <button
+                onClick={() =>
+                  navigate(
+                    `/product/${encodeURIComponent(
+                      CryptoJS.AES.encrypt(
+                        product.id.toString(),
+                        SECRET_KEY
+                      ).toString()
+                    )}`
+                  )
+                }
+                className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition cursor-pointer"
+              >
+                View
+              </button>
 
-                            <button
-                                onClick={() =>
-                                    navigate(
-                                        `/product/${encodeURIComponent(
-                                            CryptoJS.AES.encrypt(product.id.toString(), SECRET_KEY).toString()
-                                        )}`
-                                    )
-                                }
-                            >
-                                View
-                            </button>
-                             <button onClick={() => dispatch(addToCart({product_id:`${product.id}`,quantity:1}))}>
-                                Add To Cart
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </>
-    )
-}
+              <button
+                onClick={() =>
+                  dispatch(addToCart({ product_id: `${product.id}`, quantity: 1 }))
+                }
+                className="flex-1 border border-indigo-600 text-indigo-600 py-2 px-4 rounded-lg hover:bg-indigo-50 transition cursor-pointer"
+              >
+                Add To Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+};
 
-export default ProductCard
+export default ProductCard;

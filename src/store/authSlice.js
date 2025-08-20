@@ -1,16 +1,28 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import apiwithoutauth from "./apiwithoutauth";
+import api from "./api";
 
 // ========== THUNKS ==========
+
+export const fetchUserProfile = createAsyncThunk(
+  "user/profile",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("users/profile");
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.error || err.message);
+    }
+  }
+);
+
+
 export const signupUser = createAsyncThunk(
-  "auth/signup",
+  "auth/register",
   async (userdata, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        userdata,
-        { headers: { "Content-Type": "application/json" } }
-      );
+      const res = await apiwithoutauth.post('auth/register',userdata);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.error || err.message);
@@ -22,7 +34,7 @@ export const loginUser = createAsyncThunk(
   "auth/login",
   async (userdata, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
+      const res = await apiwithoutauth.post(
         "http://localhost:5000/api/auth/login",
         userdata,
         { headers: { "Content-Type": "application/json" } }
@@ -42,7 +54,8 @@ const authSlice = createSlice({
   initialState: {
     signup: { user: null, loading: false, error: null },
     login: { user: null, loading: false, error: null },
-    token: localStorage.getItem("accessToken") || null
+    token: localStorage.getItem("accessToken") || null,
+    profile: { data: null, loading: false, error: null },
   },
   reducers: {
     logout: (state) => {
@@ -54,6 +67,9 @@ const authSlice = createSlice({
       state.login.error = null;
       state.login.loading = false;
       localStorage.removeItem("accessToken"); 
+
+      state.profile = { data: null, loading: false, error: null };
+
     },
   },
   extraReducers: (builder) => {
@@ -86,6 +102,19 @@ const authSlice = createSlice({
         state.login.loading = false;
         state.login.error = action.payload;
       });
+
+       builder.addCase(fetchUserProfile.pending, (state) => {
+        state.profile.loading = true;
+        state.profile.error = null;
+      })
+      .addCase(fetchUserProfile.fulfilled, (state, action) => {
+        state.profile.data = action.payload;
+        state.profile.loading = false;
+      })
+      .addCase(fetchUserProfile.rejected, (state, action) => {
+        state.profile.loading = false;
+        state.profile.error = action.payload;
+      })
   },
 });
 

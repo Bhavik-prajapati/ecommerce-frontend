@@ -1,40 +1,46 @@
-import { useDispatch, useSelector } from "react-redux";
-import "./common.css";
-import { useEffect } from "react";
-import { fetchCart } from "../store/cartSlice";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { ShoppingCart, User } from "lucide-react";
 
 const Header = () => {
-  const dispatch = useDispatch();
+  // We only read from the store, no dispatching here.
   const { items } = useSelector((state) => state.cart);
-
-  useEffect(() => {
-    // fetch only if items are empty
-    if (items.length === 0) {
-      dispatch(fetchCart());
-    }
-  }, [dispatch, items.length]); // <-- depend on length only
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header>
-      <div className="logo">
-       <Link to="/dashboard"><h1>Shop</h1></Link>
+    <header className="bg-white shadow-md">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+        {/* Logo */}
+        <Link to="/dashboard" className="text-2xl font-bold text-indigo-600">
+          Shop
+        </Link>
+
+        {/* Menus */}
+        <nav className="hidden md:flex space-x-8 text-gray-700 font-medium">
+          <Link to="/dashboard" className="hover:text-indigo-600">Fresh</Link>
+          <Link to="/dashboard" className="hover:text-indigo-600">Today's Deal</Link>
+          <Link to="/dashboard" className="hover:text-indigo-600">Bestsellers</Link>
+        </nav>
+
+        {/* User + Cart */}
+        <div className="flex items-center space-x-6">
+          <Link to="/profile" className="flex items-center space-x-1 text-gray-700 hover:text-indigo-600">
+            <User className="w-5 h-5" />
+            <span>User</span>
+          </Link>
+
+          <Link to="/cart" className="relative flex items-center text-gray-700 hover:text-indigo-600">
+            <ShoppingCart className="w-5 h-5" />
+            <span className="ml-1">Cart</span>
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-3 bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">
+                {totalItems}
+              </span>
+            )}
+          </Link>
+        </div>
       </div>
-
-      <ul className="navlinks">
-        <li><Link to="/dashboard">Fresh</Link></li>
-        <li><Link to="/dashboard">Today's Deal</Link></li>
-        <li><Link to="/dashboard">Bestsellers</Link> </li>
-      </ul>
-
-      <ul className="user-links">
-        <li><a href="#">User</a></li>
-        <li>
-          <Link to="/cart">Cart - {totalItems}</Link>
-        </li>
-      </ul>
     </header>
   );
 };

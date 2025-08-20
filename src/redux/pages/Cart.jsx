@@ -7,11 +7,16 @@ import { useNavigate } from "react-router-dom";
 const Cart = () => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.cart);
+  console.log(items,"items")
   const navigate = useNavigate();
 
-  useEffect(() => {
+  /* useEffect(() => {
     dispatch(fetchCart());
-  }, [dispatch]);
+  }, [dispatch]); */
+
+  useEffect(() => {
+  dispatch(fetchCart());
+}, []);
 
   const handleIncrease = (item) => {
     dispatch(updateCartItem({ id: item.id, quantity: item.quantity + 1 }));
@@ -29,108 +34,99 @@ const Cart = () => {
     dispatch(removeCartItem(item.id));
   };
 
-  // Buy whole cart
   const handleBuyCart = () => {
     navigate("/checkout", { state: { type: "cart" } });
   };
 
-  // Buy single product
   const handleBuySingle = (item) => {
-    navigate("/checkout", { state: { type: "single", product: item } });
+    navigate(`/checkout/${item.id}`, { state: { type: "single", product: item } });
   };
 
-  if (loading) return <p>Loading cart...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (loading) return <p className="text-center text-gray-500">Loading cart...</p>;
+  if (error) return <p className="text-center text-red-600">{error}</p>;
 
   return (
     <>
       <Header />
-      <div style={{ padding: "20px" }}>
-        <h2>🛒 Your Cart</h2>
-        {items.length === 0 ? (
-          <p>Your cart is empty.</p>
-        ) : (
-          <table border="1" cellPadding="10" cellSpacing="0" width="100%">
-            <thead>
-              <tr style={{ backgroundColor: "#f4f4f4" }}>
-                <th>Image</th>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <img src={item.image_url} alt={item.name} width="60" />
-                  </td>
-                  <td>{item.name}</td>
-                  <td>₹{item.price}</td>
-                  <td>
-                    <button onClick={() => handleDecrease(item)}>-</button>
-                    <span style={{ margin: "0 10px" }}>{item.quantity}</span>
-                    <button onClick={() => handleIncrease(item)}>+</button>
-                  </td>
-                  <td>₹{item.price * item.quantity}</td>
-                  <td>
-                    <button
-                      style={{
-                        background: "red",
-                        color: "white",
-                        padding: "5px 10px",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => handleRemove(item)}
-                    >
-                      Remove
-                    </button>
+      <div className="max-w-6xl mx-auto p-6">
+        <h2 className="text-2xl font-bold text-indigo-600 mb-6">🛒 Your Cart</h2>
 
-                    <button
-                      onClick={() => handleBuySingle(item)}
-                      style={{
-                        marginTop: "10px",
-                        padding: "10px 20px",
-                        background: "green",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Buy Now
-                    </button>
-                  </td>
+        {items.length === 0 ? (
+          <p className="text-gray-500 text-center">Your cart is empty.</p>
+        ) : (
+          <div className="overflow-x-auto shadow rounded-lg">
+            <table className="w-full text-left border border-gray-200">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="px-4 py-3">Image</th>
+                  <th className="px-4 py-3">Product</th>
+                  <th className="px-4 py-3">Price</th>
+                  <th className="px-4 py-3">Quantity</th>
+                  <th className="px-4 py-3">Total</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id} className="border-t hover:bg-gray-50">
+                    <td className="px-4 py-3">
+                      <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-md" />
+                    </td>
+                    <td className="px-4 py-3">{item.name}</td>
+                    <td className="px-4 py-3 font-medium">₹{item.price}</td>
+                  
+                    <td className="px-4 py-3">
+  <div className="inline-flex items-center border rounded overflow-hidden">
+    <button
+      onClick={() => handleDecrease(item)}
+      className="px-3 py-1 bg-gray-200 hover:bg-gray-300"
+    >
+      -
+    </button>
+    <span className="px-4 py-1">{item.quantity}</span>
+    <button
+      onClick={() => handleIncrease(item)}
+      className="px-3 py-1 bg-gray-200 hover:bg-gray-300"
+    >
+      +
+    </button>
+  </div>
+</td>
+
+                    <td className="px-4 py-3 font-semibold">₹{item.price * item.quantity}</td>
+                    <td className="px-4 py-3 flex flex-col gap-2">
+                      <button
+                        onClick={() => handleRemove(item)}
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                      <button
+                        onClick={() => handleBuySingle(item)}
+                        className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 cursor-pointer"
+                      >
+                        Buy Now
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
-        {/* Cart Total + Checkout Whole Cart */}
         {items.length > 0 && (
-          <>
-            <h3 style={{ marginTop: "20px" }}>
+          <div className="mt-6 flex flex-col items-end">
+            <h3 className="text-xl font-semibold mb-3">
               Total: ₹{items.reduce((sum, item) => sum + item.price * item.quantity, 0)}
             </h3>
             <button
               onClick={handleBuyCart}
-              style={{
-                marginTop: "20px",
-                padding: "12px 25px",
-                background: "blue",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
+              className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
             >
-              Checkout Whole Cart
+              Checkout Cart
             </button>
-          </>
+          </div>
         )}
       </div>
     </>

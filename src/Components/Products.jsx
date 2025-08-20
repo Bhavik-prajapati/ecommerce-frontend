@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../store/productSlice"; // adjust path if needed
+import { fetchProducts } from "../store/productSlice";
 import ProductCard from "./ProductCard";
-import "./common.css";
 
 const Products = () => {
   const dispatch = useDispatch();
@@ -10,28 +9,31 @@ const Products = () => {
   // Get products state from Redux
   const { products, loading, error } = useSelector((state) => state.product);
 
-  // Fetch products when component mounts
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
   return (
-    <div>
-      <h1 className="text-center">Products</h1>
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      <h1 className="text-3xl font-bold text-center text-indigo-600 mb-8">
+        Products
+      </h1>
 
-      {/* Loading state */}
-      {loading && <p className="text-center">Loading products...</p>}
+      {loading && (
+        <p className="text-center text-gray-600">Loading products...</p>
+      )}
 
-      {/* Error state */}
       {error && <p className="text-center text-red-500">Error: {error}</p>}
 
-      {/* Products list */}
-      <div className="product-area">
+      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {products && products.length > 0 ? (
           <ProductCard products={products} />
         ) : (
-          !loading && !error && (
-            <p className="text-center">No products available</p>
+          !loading &&
+          !error && (
+            <p className="col-span-full text-center text-gray-500">
+              No products available
+            </p>
           )
         )}
       </div>
