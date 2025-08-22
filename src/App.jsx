@@ -18,12 +18,12 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login />} /> 
         <Route path="/signup" element={<Signup />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/dashboard" element={<ProtectedRoute> <Dashboard/> </ProtectedRoute>}/>
         <Route path="/cart" element={<ProtectedRoute> <Cart/> </ProtectedRoute>}/>
-        <Route path="/checkout/:id" element={<ProtectedRoute> <Checkout/> </ProtectedRoute>}/>
+        <Route path="/checkout" element={<ProtectedRoute> <Checkout/> </ProtectedRoute>}/>
         <Route path="/profile" element={<ProtectedRoute> <Profile/> </ProtectedRoute>}/>
         <Route path="*" element={<p>error...</p>} />
       </Routes>

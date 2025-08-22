@@ -14,7 +14,6 @@ const ProductDetail = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // ✅ Decode ID
   const decodedId = decodeURIComponent(id);
   const bytes = CryptoJS.AES.decrypt(decodedId, SECRET_KEY);
   const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
@@ -31,7 +30,6 @@ const ProductDetail = () => {
   if (error) return <p className="text-center text-red-500 mt-10">Error: {error}</p>;
   if (!product) return <p className="text-center mt-10">No product found</p>;
 
-  // ✅ Handlers
   const handleAddToCart = () => {
     dispatch(addToCart({ product_id: decryptedId, quantity: 1 }))
       .unwrap()
@@ -39,16 +37,14 @@ const ProductDetail = () => {
       .catch((err) => toast.error("Error: " + err));
   };
 
-  const handleBuySingle = (productid) => {
-    
-    navigate(`/checkout/${productid}`, { state: { type: "single", product } });
+  const handleBuySingle = () => {
+    navigate(`/checkout?type=single&id=${product.id}`);
   };
 
   return (
     <>
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-        {/* Product Image */}
         <div className="flex justify-center">
           <img
             src={product.image_url}
@@ -57,17 +53,15 @@ const ProductDetail = () => {
           />
         </div>
 
-        {/* Product Details */}
         <div className="space-y-6">
           <h2 className="text-3xl font-bold text-gray-800">{product.name}</h2>
           <p className="text-gray-600">{product.description}</p>
           <p className="text-2xl font-semibold text-indigo-600">&#8377;{product.price}</p>
 
 
-          {/* Buttons */}
           <div className="flex gap-4">
             <button
-              onClick={()=>handleBuySingle(product.id)}
+              onClick={()=>handleBuySingle()}
               className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2 rounded-xl shadow hover:bg-indigo-700 transition cursor-pointer"
             >
               <CreditCard size={20} /> Buy Now

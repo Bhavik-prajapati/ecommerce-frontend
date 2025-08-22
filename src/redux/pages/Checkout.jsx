@@ -1,24 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
-import Header from "../../Components/Header";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProductById } from "../../store/productSlice";
+import { useEffect, useState } from "react";
+import { createOrder } from "../../store/orderSlice";
 import api from "../../store/api";
 
 const Checkout = () => {
-    const location = useLocation();
+  const loadRazorpay = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
-  const { items } = useSelector((state) => state.cart);
-  const navigate = useNavigate();
-  
-  const { id } = useParams(); 
-  const { type, product } = location.state || { type: "cart", product: null };
-  console.log(type,product,"------")
-  
-  const checkoutItems = type === "single" && product ? [{ ...product }] : items;
+  const dispatch = useDispatch();
+  const query = new URLSearchParams(location.search);
+  const id = query.get("id");
+  const type = query.get("type");
 
-  const [addresses, setAddresses] = useState([]);
-  const [selectedAddress, setSelectedAddress] = useState(null);
-  const [newAddress, setNewAddress] = useState({
+  const [quantity, setQuantity] = useState(1);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+
+  const { product, loading: productLoading, error: productError } = useSelector(
+    (state) => state.product
+  );
+  const { order, loading: orderLoading, error: orderError } = useSelector(
+    (state) => state.order
+  );
+
+  const [address, setAddress] = useState({
+    receivername: "",
+    mobile_no: "",
     address_line1: "",
     address_line2: "",
     city: "",
@@ -26,198 +40,289 @@ const Checkout = () => {
     postal_code: "",
     country: "",
   });
-  const [useNew, setUseNew] = useState(false);
-  const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
-    api
-      .get("shipping")
-      .then((res) => {
-        setAddresses(Array.isArray(res.data) ? res.data : []);
-      })
-      .catch((err) => console.error("Fetch addresses error:", err));
-  }, [token]);
-
-  const handleAddNewAddress = async () => {
-    try {
-      const res = await api.post("shipping", newAddress);
-      setAddresses((prev) => [...prev, res.data.address]);
-      setUseNew(false);
-      setSelectedAddress(res.data.address);
-    } catch (err) {
-      console.error("Add address error:", err);
+    if (type === "single" && id) {
+      dispatch(fetchProductById(id));
     }
+  }, [dispatch, id, type]);
+
+  const handleOrder = () => {
+    setShowAddressForm(true);
   };
-
-  const handlePlaceOrder = () => {
-    const shippingAddress =
-      useNew && newAddress.address_line1
-        ? newAddress
-        : addresses.find((a) => a.id === selectedAddress);
-
-    console.log("Shipping Address:", shippingAddress);
-    console.log("Order Items:", checkoutItems);
-
-    alert("Order placed successfully!");
-    navigate("/orders");
-  };
-
-  const cartTotal = checkoutItems.reduce(
-    (sum, item) => sum + item.price * (item.quantity || 1),
-    0
-  );
-
-  const handlePayment = async () => {
-    console.log(cartTotal,"cart total...")  
-  try {
-    // const res = await api.post("payments/create-order", { amount: cartTotal,productid:8 });
-    const res = await api.post("/payments/create-order", { 
-      amount: cartTotal, 
-      currency: "INR", 
-      // productid: id 
-      productDetails:product,
-      type:type,
-      selectedAddress
-    });
-
-    const { id: order_id, amount } = res.data;
-    // 2. Razorpay options
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY, // Razorpay key_id
-      amount: amount, // amount in paise
-      currency: "INR",
-      name: "Your Store Name",
-      description: "Order Payment",
-      order_id,
-      handler: function (response) {
-        console.log("Payment Successful", response);
-        alert("Payment Successful!");
-      },
-      prefill: {
-        name: "Customer Name",
-        email: "customer@example.com",
-        contact: "9999999999",
-      },
-      theme: {
-        color: "#4f46e5",
-      },
-    };
-
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  } catch (err) {
-    console.error("Payment error:", err);
-    alert("Payment failed!");
+const handlePayNow = async () => {
+  if (
+    !address.receivername.trim() ||
+    !address.mobile_no.trim() ||
+    !address.address_line1.trim() ||
+    !address.city.trim() ||
+    !address.state.trim() ||
+    !address.postal_code.trim() ||
+    !address.country.trim()
+  ) {
+    alert("⚠️ Please fill in all required address fields.");
+    return;
   }
+
+  const totalAmount = product ? quantity * parseFloat(product.price) : 0;
+
+  const orderData = {
+    productId: id,
+    product: product?.name,
+    quantity,
+    total: totalAmount.toFixed(2),
+    shippingAddress: { ...address },
+  };
+
+  const res = await dispatch(createOrder(orderData));
+  if (res.meta.requestStatus !== "fulfilled") {
+    alert("❌ Order failed: " + res.payload);
+    return;
+  }
+
+  const orderId=res.payload.order.id;
+  const result = await fetch("http://localhost:5000/api/payment/razorpay", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      amount: totalAmount,
+      currency: "INR",
+      receipt: "order_" + Date.now(),
+    }),
+  });
+
+  const data = await result.json();
+  if (!data.id) {
+    alert("❌ Razorpay order creation failed");
+    return;
+  }
+
+  const isLoaded = await loadRazorpay();
+  if (!isLoaded) {
+    alert("❌ Razorpay SDK failed to load. Check internet connection.");
+    return;
+  }
+
+  const options = {
+  key: import.meta.env.VITE_RAZORPAY_KEY,
+  amount: data.amount,
+  currency: data.currency,
+  name: "My Shop",
+  description: product?.name,
+  order_id: data.id,
+  handler: async function (response) {
+    alert("✅ Payment successful!");
+    try {
+      const res = await api.post("payment/updateorderStatus", {
+        orderId:orderId,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_signature: response.razorpay_signature,
+      });
+
+      console.log("Order Updated:", res.data);
+    } catch (err) {
+      console.error("❌ Failed to update order:", err);
+    }
+  },
+  prefill: {
+    name: address.receivername,
+    email: "test@example.com",
+    contact: address.mobile_no,
+  },
+  theme: { color: "#3399cc" },
+};
+  const rzp = new window.Razorpay(options);
+  rzp.open();
 };
 
+  const handleChange = (e) => {
+    setAddress({ ...address, [e.target.name]: e.target.value });
+  };
 
+  if (productLoading || orderLoading) {
+    return <p className="text-center mt-10">Loading...</p>;
+  }
 
+  if (productError || orderError) {
+    return (
+      <p className="text-center text-red-500 mt-10">
+        Error: {productError || orderError}
+      </p>
+    );
+  }
+
+  if (!product) {
+    return <p className="text-center mt-10">Product not found.</p>;
+  }
 
   return (
-    <>
-      <Header />
-      <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 bg-white shadow rounded-xl p-6">
-          <h2 className="text-2xl font-semibold text-indigo-600 mb-4">Checkout</h2>
-          <h3 className="text-lg font-medium mb-3">Select Address</h3>
+    <div className="relative">
+      <div className="max-w-4xl mx-auto px-6 py-10">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8">Checkout</h1>
 
-          {addresses.map((addr) => (
-            <div key={addr.id} className="mb-2 flex items-center gap-2">
-              <input
-                type="radio"
-                name="address"
-                value={addr.id}
-                checked={selectedAddress === addr.id && !useNew}
-                onChange={() => {
-                  setSelectedAddress(addr);
-                  setUseNew(false);
-                }}
-                className="text-indigo-600"
-              />
-              <span id className="text-gray-700">
-                {addr.address_line1}, {addr.address_line2}, {addr.city},{" "}
-                {addr.state}, {addr.postal_code}, {addr.country}
-              </span>
-            </div>
-          ))}
-
-          <div className="mt-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="address"
-                checked={useNew}
-                onChange={() => setUseNew(true)}
-                className="text-indigo-600"
-              />
-              <span className="text-gray-700">Use New Address</span>
-            </label>
-          </div>
-
-          {useNew && (
-            <form className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-              {[
-                "address_line1",
-                "address_line2",
-                "city",
-                "state",
-                "postal_code",
-                "country",
-              ].map((field) => (
-                <input
-                  key={field}
-                  type="text"
-                  placeholder={field.replace("_", " ").toUpperCase()}
-                  value={newAddress[field]}
-                  onChange={(e) =>
-                    setNewAddress({ ...newAddress, [field]: e.target.value })
-                  }
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              ))}
-
-              <button
-                type="button"
-                onClick={handleAddNewAddress}
-                className="col-span-2 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
-              >
-                Save Address
-              </button>
-            </form>
+        <div className="bg-white rounded-xl shadow-md p-6 flex gap-6 items-start relative z-10">
+          {product?.image_url && (
+            <img
+              src={product.image_url}
+              alt={product?.name || "Product"}
+              className="w-48 h-48 object-contain rounded-lg border"
+            />
           )}
 
-          <button
-  onClick={handlePayment}
-  disabled={
-    (!useNew && !selectedAddress) || 
-    (useNew && !newAddress.address_line1)
-  }
-  className={`mt-6 px-6 py-2 rounded-lg text-white 
-    ${(!useNew && !selectedAddress) || (useNew && !newAddress.address_line1)
-      ? "bg-gray-400 cursor-not-allowed"
-      : "bg-green-600 hover:bg-green-700"
-    }`}
->
-  Place Order
-</button>
-        </div>
+          <div className="flex-1 space-y-3">
+            <h2 className="text-2xl font-semibold text-gray-800">
+              {product?.name}
+            </h2>
 
-        {/* Right - Order Summary */}
-        <div className="bg-gray-50 shadow rounded-xl p-6">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">Order Summary</h3>
-          {checkoutItems.map((item) => (
-            <p key={item.id} className="text-gray-700 mb-1">
-              {item.name} × {item.quantity || 1} = ₹
-              {item.price * (item.quantity || 1)}
+            <p className="text-gray-600">{product?.description}</p>
+            <p className="text-lg text-indigo-600 font-bold">
+              ₹{product?.price}
             </p>
-          ))}
-          <h3 className="mt-4 text-lg font-bold text-indigo-600">
-            Total: ₹{cartTotal}
-          </h3>
+
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              <span>
+                ⭐ {product?.average_rating} ({product?.rating_count} reviews)
+              </span>
+              <span>| Stock: {product?.stock}</span>
+            </div>
+
+            <div className="mt-4">
+              <label className="block mb-1 text-gray-700 font-medium">
+                Quantity
+              </label>
+              <input
+                type="number"
+                value={quantity}
+                min={1}
+                max={product?.stock || 1}
+                onChange={(e) =>
+                  setQuantity(
+                    Math.min(
+                      product?.stock || 1,
+                      Math.max(1, Number(e.target.value))
+                    )
+                  )
+                }
+                className="w-24 border rounded-lg px-3 py-2 text-center"
+              />
+            </div>
+
+            <p className="mt-3 text-lg font-semibold text-gray-800">
+              Total: ₹
+              {product
+                ? (quantity * parseFloat(product.price)).toFixed(2)
+                : 0}
+            </p>
+
+            <button
+              onClick={handleOrder}
+              className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg shadow hover:bg-indigo-700"
+            >
+              Confirm Order
+            </button>
+          </div>
         </div>
       </div>
-    </>
+
+      {showAddressForm && (
+        <div className="absolute inset-0 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg relative">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">
+              Enter Shipping Address
+            </h2>
+
+            <form className="grid grid-cols-2 gap-4">
+              <input
+                type="text"
+                name="receivername"
+                placeholder="Receiver Name"
+                value={address.receivername}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2 col-span-2"
+                required
+              />
+              <input
+                type="text"
+                name="mobile_no"
+                placeholder="Mobile Number"
+                value={address.mobile_no}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2 col-span-2"
+                required
+              />
+              <input
+                type="text"
+                name="address_line1"
+                placeholder="Address Line 1"
+                value={address.address_line1}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2 col-span-2"
+                required
+              />
+              <input
+                type="text"
+                name="address_line2"
+                placeholder="Address Line 2 (Optional)"
+                value={address.address_line2}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2 col-span-2"
+              />
+              <input
+                type="text"
+                name="city"
+                placeholder="City"
+                value={address.city}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2"
+                required
+              />
+              <input
+                type="text"
+                name="state"
+                placeholder="State"
+                value={address.state}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2"
+                required
+              />
+              <input
+                type="text"
+                name="postal_code"
+                placeholder="Postal Code"
+                value={address.postal_code}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2"
+                required
+              />
+              <input
+                type="text"
+                name="country"
+                placeholder="Country"
+                value={address.country}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2"
+                required
+              />
+            </form>
+
+            <button
+              onClick={handlePayNow}
+              className="mt-6 w-full bg-green-600 text-white py-3 rounded-lg shadow hover:bg-green-700"
+            >
+              Pay Now
+            </button>
+
+            <button
+              onClick={() => setShowAddressForm(false)}
+              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-xl"
+            >
+              ✖
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
