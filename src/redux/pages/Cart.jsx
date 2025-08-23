@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateCartItem, removeCartItem } from "../../store/cartSlice";
+import { updateCartItem, removeCartItem, fetchCart } from "../../store/cartSlice";
 import Header from "../../Components/Header";
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +8,11 @@ const Cart = () => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.cart);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [])
+
 
   const handleIncrease = (item) => {
     dispatch(updateCartItem({ id: item.id, quantity: item.quantity + 1 }));
@@ -29,8 +34,8 @@ const Cart = () => {
     navigate("/checkout", { state: { type: "cart" } });
   };
 
-  const handleBuySingle = (item) => {
-    navigate(`/checkout/${item.id}`, { state: { type: "single", product: item } });
+  const handleBuySingle = (id) => {
+    navigate(`/checkout?type=single&id=${id}`);
   };
 
   if (loading) return <p className="text-center text-gray-500">Loading cart...</p>;
@@ -75,7 +80,7 @@ const Cart = () => {
                     <td className="px-4 py-3 font-semibold">₹{item.price * item.quantity}</td>
                     <td className="px-4 py-3 flex flex-col gap-2">
                       <button onClick={() => handleRemove(item)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Remove</button>
-                      <button onClick={() => handleBuySingle(item)} className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">Buy Now</button>
+                      <button onClick={() => handleBuySingle(item.product_id)} className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">Buy Now</button>
                     </td>
                   </tr>
                 ))}
