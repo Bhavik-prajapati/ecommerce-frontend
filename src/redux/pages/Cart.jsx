@@ -1,22 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCart, updateCartItem, removeCartItem } from "../../store/cartSlice";
+import { updateCartItem, removeCartItem } from "../../store/cartSlice";
 import Header from "../../Components/Header";
 import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.cart);
-  console.log(items,"items")
   const navigate = useNavigate();
-
-  /* useEffect(() => {
-    dispatch(fetchCart());
-  }, [dispatch]); */
-
-  useEffect(() => {
-  dispatch(fetchCart());
-}, []);
 
   const handleIncrease = (item) => {
     dispatch(updateCartItem({ id: item.id, quantity: item.quantity + 1 }));
@@ -74,39 +65,17 @@ const Cart = () => {
                     </td>
                     <td className="px-4 py-3">{item.name}</td>
                     <td className="px-4 py-3 font-medium">₹{item.price}</td>
-                  
                     <td className="px-4 py-3">
-  <div className="inline-flex items-center border rounded overflow-hidden">
-    <button
-      onClick={() => handleDecrease(item)}
-      className="px-3 py-1 bg-gray-200 hover:bg-gray-300"
-    >
-      -
-    </button>
-    <span className="px-4 py-1">{item.quantity}</span>
-    <button
-      onClick={() => handleIncrease(item)}
-      className="px-3 py-1 bg-gray-200 hover:bg-gray-300"
-    >
-      +
-    </button>
-  </div>
-</td>
-
+                      <div className="inline-flex items-center border rounded overflow-hidden">
+                        <button onClick={() => handleDecrease(item)} className="px-3 py-1 bg-gray-200 hover:bg-gray-300">-</button>
+                        <span className="px-4 py-1">{item.quantity}</span>
+                        <button onClick={() => handleIncrease(item)} className="px-3 py-1 bg-gray-200 hover:bg-gray-300">+</button>
+                      </div>
+                    </td>
                     <td className="px-4 py-3 font-semibold">₹{item.price * item.quantity}</td>
                     <td className="px-4 py-3 flex flex-col gap-2">
-                      <button
-                        onClick={() => handleRemove(item)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
-                      >
-                        Remove
-                      </button>
-                      <button
-                        onClick={() => handleBuySingle(item)}
-                        className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 cursor-pointer"
-                      >
-                        Buy Now
-                      </button>
+                      <button onClick={() => handleRemove(item)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Remove</button>
+                      <button onClick={() => handleBuySingle(item)} className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">Buy Now</button>
                     </td>
                   </tr>
                 ))}
@@ -120,10 +89,7 @@ const Cart = () => {
             <h3 className="text-xl font-semibold mb-3">
               Total: ₹{items.reduce((sum, item) => sum + item.price * item.quantity, 0)}
             </h3>
-            <button
-              onClick={handleBuyCart}
-              className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
-            >
+            <button onClick={handleBuyCart} className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
               Checkout Cart
             </button>
           </div>

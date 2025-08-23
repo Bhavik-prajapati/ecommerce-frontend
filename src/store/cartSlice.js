@@ -6,7 +6,7 @@ export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({ product_id, quantity }, { rejectWithValue }) => {
     try {
-      const res = await api.post(`cart`, { product_id, quantity });
+      const res = await api.post("cart", { product_id, quantity });
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.error || "Error adding to cart");
@@ -19,7 +19,7 @@ export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get(`cart`);
+      const res = await api.get("cart");
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.error || "Error fetching cart");
@@ -63,36 +63,65 @@ const cartSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // -------- Add --------
       .addCase(addToCart.pending, (state) => {
         state.loading = true;
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        if (Array.isArray(action.payload)) {
+          state.items = action.payload;
+        } else {
+          const newItem = action.payload;
+          const index = state.items.findIndex((i) => i.id === newItem.id);
+          if (index !== -1) {
+            state.items[index] = newItem;
+          } else {
+            state.items.push(newItem);
+          }
+        }
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
+      // -------- Fetch --------
       .addCase(fetchCart.pending, (state) => {
         state.loading = true;
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload.items || [];
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
+      // -------- Update --------
       .addCase(updateCartItem.fulfilled, (state, action) => {
-        state.items = action.payload;
+        if (Array.isArray(action.payload)) {
+          state.items = action.payload;
+        } else {
+          const updatedItem = action.payload;
+          const index = state.items.findIndex((i) => i.id === updatedItem.id);
+          if (index !== -1) {
+            state.items[index] = updatedItem;
+          }
+        }
       })
 
+      // -------- Remove --------
       .addCase(removeCartItem.fulfilled, (state, action) => {
-        state.items = action.payload;
+        if (Array.isArray(action.payload)) {
+          state.items = action.payload;
+        } else {
+          const removedId = action.payload.id;
+          state.items = state.items.filter((i) => i.id !== removedId);
+        }
       });
   },
 });

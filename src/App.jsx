@@ -11,6 +11,7 @@ import ProductDetail from "./redux/pages/ProductDetail"
 import Cart from "./redux/pages/Cart"
 import Checkout from "./redux/pages/Checkout"
 import Profile from "./redux/pages/Profile"
+import Myorders from "./redux/pages/Myorders"
 
 
 const App = () => {
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/cart" element={<ProtectedRoute> <Cart/> </ProtectedRoute>}/>
         <Route path="/checkout" element={<ProtectedRoute> <Checkout/> </ProtectedRoute>}/>
         <Route path="/profile" element={<ProtectedRoute> <Profile/> </ProtectedRoute>}/>
+        <Route path="/myorders" element={<ProtectedRoute> <Myorders/> </ProtectedRoute>}/>
         <Route path="*" element={<p>error...</p>} />
       </Routes>
 
