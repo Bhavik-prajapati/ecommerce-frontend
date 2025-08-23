@@ -1,39 +1,32 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../Components/Header";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserProfile } from "../../store/authSlice";
+import { fetchUserProfile, logout } from "../../store/userSlice";
+import { toast } from "react-toastify";
+
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("info");
-  const navigate=useNavigate();
-  const dispatch=useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  
-  const { data: profile, loading, error } = useSelector(
-    (state) => state.auth.profile
-  );
-
-  console.log(data,profile,loading,error)
+  const { user, loading, error } = useSelector((state) => state.user);
 
   useEffect(() => {
-    dispatch(fetchUserProfile()); // 🔹 Fetch profile when component loads
+  const token = localStorage.getItem("token"); 
+  if (!token) {
+          toast.error("Please log in to continue"); 
+          navigate("/login");
+          return;
+    }
+    dispatch(fetchUserProfile());
   }, [dispatch]);
 
-  const fakeUser = {
-    name: "Jatin Birbal",
-    email: "jatin@example.com",
-    address: "123 Main Street, New Delhi, India",
-    orders: [
-      { id: 1, item: "Nike Shoes", price: "₹3999", status: "Delivered" },
-      { id: 2, item: "Apple AirPods", price: "₹14999", status: "Shipped" },
-    ],
-  };
-
-  const handleLogout=()=>{
-    localStorage.clear();
+  const handleLogout = () => {
+    dispatch(logout());
     navigate("/login");
-  }
+  };
 
   return (
     <>
@@ -46,8 +39,8 @@ const Profile = () => {
           <button
             className={`pb-2 ${
               activeTab === "info"
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-gray-600"
+                ? "text-indigo-600 border-b-2 border-indigo-600 cursor-pointer"
+                : "text-gray-600 cursor-pointer"
             }`}
             onClick={() => setActiveTab("info")}
           >
@@ -56,8 +49,8 @@ const Profile = () => {
           <button
             className={`pb-2 ${
               activeTab === "orders"
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-gray-600"
+                ? "text-indigo-600 border-b-2 border-indigo-600 cursor-pointer"
+                : "text-gray-600 cursor-pointer"
             }`}
             onClick={() => setActiveTab("orders")}
           >
@@ -66,8 +59,8 @@ const Profile = () => {
           <button
             className={`pb-2 ${
               activeTab === "contact"
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-gray-600"
+                ? "text-indigo-600 border-b-2 border-indigo-600 cursor-pointer"
+                : "text-gray-600 cursor-pointer"
             }`}
             onClick={() => setActiveTab("contact")}
           >
@@ -75,22 +68,31 @@ const Profile = () => {
           </button>
         </div>
 
+        {/* Loader & Error */}
+        {loading && <p>Loading profile...</p>}
+        {error && <p className="text-red-500">Error: {error}</p>}
+
         {/* Tab Content */}
-        {activeTab === "info" && (
+        {activeTab === "info" && user && (
           <div className="bg-white shadow rounded-lg p-6">
             <h2 className="text-xl font-semibold mb-4">Personal Info</h2>
             <p>
-              <span className="font-medium">Name:</span> {fakeUser.name}
+              <span className="font-medium">Name:</span> {user.name}
             </p>
             <p>
-              <span className="font-medium">Email:</span> {fakeUser.email}
+              <span className="font-medium">Email:</span> {user.email}
             </p>
             <p>
-              <span className="font-medium">Address:</span> {fakeUser.address}
+              <span className="font-medium">Role:</span> {user.role}
             </p>
 
             <p>
-                  <button className="flex items-center gap-2 bg-red-700 text-white px-5 py-2 rounded-xl shadow hover:bg-red-700 transition cursor-pointer mt-5" onClick={handleLogout}>Logout</button>
+              <button
+                className="flex items-center gap-2 bg-red-700 text-white px-5 py-2 rounded-xl shadow hover:bg-red-800 transition cursor-pointer mt-5"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
             </p>
           </div>
         )}
@@ -98,19 +100,24 @@ const Profile = () => {
         {activeTab === "orders" && (
           <div className="bg-white shadow rounded-lg p-6">
             <h2 className="text-xl font-semibold mb-4">My Orders</h2>
-            {fakeUser.orders.length > 0 ? (
+            {user?.orders?.length > 0 ? (
               <ul className="space-y-4">
-                {fakeUser.orders.map((order) => (
+                {user.orders.map((order) => (
                   <li
                     key={order.id}
                     className="p-4 border rounded-lg flex justify-between items-center"
                   >
                     <div>
-                      <p className="font-medium">{order.item}</p>
-                      <p className="text-sm text-gray-500">{order.status}</p>
+                      <p className="font-medium">Order #{order.id}</p>
+                      <p className="text-sm text-gray-500">
+                        Status: {order.payment_status}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Quantity: {order.quantity}
+                      </p>
                     </div>
                     <span className="font-semibold text-indigo-600">
-                      {order.price}
+                      ₹{order.total_price}
                     </span>
                   </li>
                 ))}
@@ -133,9 +140,6 @@ const Profile = () => {
               </span>
               .
             </p>
-
-
-
           </div>
         )}
       </div>
