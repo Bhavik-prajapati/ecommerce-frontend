@@ -87,17 +87,16 @@ const Checkout = () => {
     }
 
     const orderId = res.payload.order.id;
-    const result = await fetch("http://localhost:5000/api/payment/razorpay", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: totalAmount,
-        currency: "INR",
-        receipt: "order_" + Date.now(),
-      }),
-    });
+ 
+    const result = await api.post("http://localhost:5000/api/payment/razorpay", {
+    amount: totalAmount,
+    currency: "INR",
+    receipt: "order_" + Date.now(),
+  });
 
-    const data = await result.json();
+    const data = result.data;
+    console.log(data,"data.......")
+
     if (!data.id) {
       toast.error("❌ Razorpay order creation failed");
       return;
@@ -133,11 +132,13 @@ const Checkout = () => {
       },
       prefill: {
         name: address.receivername,
-        email: "test@example.com",
+        email: data.email,
         contact: address.mobile_no,
       },
       theme: { color: "#4f46e5" },
     };
+
+    console.log(options,"toption,,,,,,,,,,")
     const rzp = new window.Razorpay(options);
     rzp.open();
   };

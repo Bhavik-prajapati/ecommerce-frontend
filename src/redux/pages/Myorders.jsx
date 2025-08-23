@@ -2,14 +2,21 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getOrders } from "../../store/orderSlice";
 import Header from "../../Components/Header";
+import { useNavigate } from "react-router-dom";
 
 const MyOrders = () => {
   const dispatch = useDispatch();
+  const navigate=useNavigate();
+
   const { orders, loading, error } = useSelector((state) => state.order);
 
   useEffect(() => {
     dispatch(getOrders());
   }, [dispatch]);
+
+  const handleBuySingle = (id) => {
+    navigate(`/checkout?type=single&id=${id}`);
+  };
 
   return (
     <>
@@ -46,11 +53,10 @@ const MyOrders = () => {
                     Order #{order.id}
                   </h2>
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      order.payment_status === "paid"
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${order.payment_status === "paid"
                         ? "bg-green-100 text-green-700"
                         : "bg-yellow-100 text-yellow-700"
-                    }`}
+                      }`}
                   >
                     {order.payment_status}
                   </span>
@@ -82,11 +88,18 @@ const MyOrders = () => {
                 </div>
 
                 {/* Payment Info */}
-                <div className="bg-gray-50 px-6 py-4 border-t">
-                  <h4 className="font-medium text-gray-800 mb-1">Payment Info</h4>
-                  <p className="text-gray-600 text-sm">Order ID: {order.razorpay_order_id}</p>
-                  <p className="text-gray-600 text-sm">Payment ID: {order.razorpay_payment_id}</p>
-                </div>
+                {!order.payment_status === 'pending' ?
+                  <div className="bg-gray-50 px-6 py-4 border-t">
+                    <h4 className="font-medium text-gray-800 mb-1">Payment Info</h4>
+                    <p className="text-gray-600 text-sm">Order ID: {order.razorpay_order_id}</p>
+                    <p className="text-gray-600 text-sm">Payment ID: {order.razorpay_payment_id}</p>
+                  </div>
+                  : <>
+                    <div className="bg-gray-50 px-6 py-4 border-t">
+                      <button  className="flex-1 border border-indigo-600 text-indigo-600 py-2 px-4 rounded-lg hover:bg-indigo-50 transition cursor-pointer" onClick={() => handleBuySingle(order.id)}>Continue</button>
+                    </div>
+                  </>
+                }
               </div>
             ))}
           </div>
