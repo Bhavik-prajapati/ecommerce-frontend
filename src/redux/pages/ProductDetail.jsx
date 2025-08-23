@@ -21,76 +21,77 @@ const ProductDetail = () => {
   const { product, loading, error } = useSelector((state) => state.product);
   const token = useSelector((state) => state.auth.token); 
 
-
-
   useEffect(() => {
     if (decryptedId) {
       dispatch(fetchProductById(decryptedId));
     }
   }, [dispatch, decryptedId]);
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
-  if (error) return <p className="text-center text-red-500 mt-10">Error: {error}</p>;
-  if (!product) return <p className="text-center mt-10">No product found</p>;
+  if (loading)
+    return <p className="text-center mt-20 text-lg text-gray-600 animate-pulse">Loading...</p>;
+  if (error)
+    return <p className="text-center text-red-500 mt-20 text-lg font-medium">Error: {error}</p>;
+  if (!product)
+    return <p className="text-center mt-20 text-lg text-gray-500">No product found</p>;
 
   const handleAddToCart = () => {
-    if (!token) {
-    toast.error("Please log in to continue");
-    navigate("/login");
-    return;
-  }
-
+    debugger;
     dispatch(addToCart({ product_id: decryptedId, quantity: 1 }))
       .unwrap()
       .then(() => toast.success("Item added to cart!"))
-      .catch((err) =>{ 
-        toast.error("Error: " + err)
-      });
+      .catch((err) => toast.error("Error: " + err));
   };
 
   const handleBuySingle = () => {
-
     if (!token) {
-    toast.error("Please log in to continue");
-    navigate("/login");
-    return;
-  }
-
-
+      toast.error("Please log in to continue");
+      navigate("/login");
+      return;
+    }
     navigate(`/checkout?type=single&id=${product.id}`);
   };
 
   return (
     <>
       <Header />
-      <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-        <div className="flex justify-center">
-          <img
-            src={product.image_url}
-            alt={product.name}
-            className="rounded-xl shadow-lg max-h-[400px] object-contain"
-          />
-        </div>
+      <div className="min-h-screen bg-gradient-to-r from-orange-50 via-rose-50 to-pink-50 py-10">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+          
+          {/* Product Image */}
+          <div className="flex justify-center">
+            <img
+              src={product.image_url}
+              alt={product.name}
+              className="rounded-2xl shadow-2xl max-h-[450px] object-contain transform hover:scale-105 transition duration-300"
+            />
+          </div>
 
-        <div className="space-y-6">
-          <h2 className="text-3xl font-bold text-gray-800">{product.name}</h2>
-          <p className="text-gray-600">{product.description}</p>
-          <p className="text-2xl font-semibold text-indigo-600">&#8377;{product.price}</p>
+          {/* Product Info */}
+          <div className="space-y-6">
+            <h2 className="text-4xl font-extrabold text-gray-800">{product.name}</h2>
+            <p className="text-gray-600 text-lg">{product.description}</p>
 
+            <p className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-rose-500 to-pink-500">
+              &#8377;{product.price}
+            </p>
 
-          <div className="flex gap-4">
-            <button
-              onClick={()=>handleBuySingle()}
-              className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2 rounded-xl shadow hover:bg-indigo-700 transition cursor-pointer"
-            >
-              <CreditCard size={20} /> Buy Now
-            </button>
-            <button
-              onClick={handleAddToCart}
-              className="flex items-center gap-2 border border-indigo-600 text-indigo-600 px-5 py-2 rounded-xl shadow hover:bg-indigo-50 transition cursor-pointer"
-            >
-              <ShoppingCart size={20} /> Add to Cart
-            </button>
+            <div className="flex gap-4 flex-wrap">
+              {/* Buy Now */}
+              <button
+                onClick={handleBuySingle}
+                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-3 rounded-2xl shadow-lg hover:opacity-90 active:scale-95 transition duration-200 font-semibold"
+              >
+                <CreditCard size={20} /> Buy Now
+              </button>
+
+              {/* Add to Cart */}
+              <button
+                onClick={handleAddToCart}
+                className="flex items-center gap-2 border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-2xl shadow hover:bg-orange-50 active:scale-95 transition duration-200 font-semibold"
+              >
+                <ShoppingCart size={20} /> Add to Cart
+              </button>
+            </div>
           </div>
         </div>
       </div>

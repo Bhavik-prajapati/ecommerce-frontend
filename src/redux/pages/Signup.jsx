@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { signupUser } from "../../store/authSlice";
 import { toast } from "react-toastify";
+import { ShoppingBag, User, Mail, Lock, UserPlus } from "lucide-react";
 
 const Signup = () => {
   const { error, loading } = useSelector((state) => state.auth.signup);
@@ -32,90 +33,92 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-          Sign Up
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-orange-500 via-rose-500 to-pink-500 p-6">
+      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 bg-white rounded-2xl shadow-2xl overflow-hidden">
 
-        {error && (
-          <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
-        )}
+        {/* Left Branding Section */}
+        <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-orange-600 to-rose-600 text-white p-10">
+          <ShoppingBag size={60} className="mb-6" />
+          <h2 className="text-3xl font-extrabold mb-2">ShopEase</h2>
+          <p className="text-lg text-white/90 text-center">
+            Join thousands of happy shoppers ✨ <br />
+            Create your free account today and unlock exclusive deals!
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name */}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+        {/* Right Signup Form */}
+        <div className="p-10">
+          <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
+            Create Your Account
+          </h1>
+
+          {error && (
+            <p className="text-red-500 text-sm mb-4 text-center font-medium">
+              {error}
+            </p>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Name */}
+            <div className="relative">
+              <User className="absolute left-3 top-2.5 text-gray-400" size={20} />
+              <input
+                type="text"
+                name="name"
+                value={formdata.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                required
+                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Email */}
+            <div className="relative">
+              <Mail className="absolute left-3 top-2.5 text-gray-400" size={20} />
+              <input
+                type="email"
+                name="email"
+                value={formdata.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                required
+                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="relative">
+              <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
+              <input
+                type="password"
+                name="password"
+                value={formdata.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                required
+                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:opacity-90 active:scale-95 transition duration-200 disabled:opacity-50"
             >
-              Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formdata.name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              placeholder="Enter your name"
-              required
-            />
-          </div>
+              {loading ? "Signing up..." : <> <UserPlus size={20}/> Sign Up</>}
+            </button>
+          </form>
 
-          {/* Email */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formdata.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formdata.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-300 disabled:opacity-50"
-          >
-            {loading ? "Signing up..." : "Sign Up"}
-          </button>
-        </form>
-
-        <p className="text-sm text-gray-600 mt-6 text-center">
-          Already have an account?{" "}
-          <Link to="/login" className="text-indigo-600 hover:underline">
-            Login here
-          </Link>
-        </p>
+          {/* Footer */}
+          <p className="text-sm text-gray-600 mt-6 text-center">
+            Already have an account?{" "}
+            <Link to="/login" className="font-semibold text-orange-600 hover:underline">
+              Login here
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
