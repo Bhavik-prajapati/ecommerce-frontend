@@ -216,7 +216,7 @@ const Checkout = () => {
 
             <button
               onClick={handleOrder}
-              className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg shadow hover:bg-indigo-700 transition"
+              className="cursor-pointer mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg shadow hover:bg-indigo-700 transition"
             >
               Confirm Order
             </button>
@@ -261,7 +261,7 @@ const Checkout = () => {
             <div className="mt-6 flex gap-3">
               <button
                 onClick={handlePayNow}
-                className="flex-1 bg-green-600 text-white py-3 rounded-lg shadow hover:bg-green-700 transition"
+                className="flex-1 bg-green-600 text-white py-3 rounded-lg shadow hover:bg-green-700 transition cursor-pointer"
               >
                 Pay Now
               </button>
@@ -280,7 +280,7 @@ const Checkout = () => {
       country: "",
     }); // clear fields
   }}
-  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg shadow hover:bg-gray-300 transition"
+  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg shadow hover:bg-gray-300 transition cursor-pointer"
 >
   Cancel
 </button>
