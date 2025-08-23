@@ -23,7 +23,7 @@ const Login = () => {
     dispatch(loginUser(formdata)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
         toast.success("Login successful 🎉");
-        navigate("/dashboard");
+        navigate("/");
       } else {
         toast.warning(res.payload);
       }

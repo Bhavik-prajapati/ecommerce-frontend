@@ -5,8 +5,8 @@ import { useEffect } from "react";
 import { fetchProductById } from "../../store/productSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../store/cartSlice";
-import { toast } from "react-toastify";
 import { ShoppingCart, CreditCard } from "lucide-react";
+import { toast } from "react-toastify";
 
 const ProductDetail = () => {
   const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
@@ -19,6 +19,9 @@ const ProductDetail = () => {
   const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
 
   const { product, loading, error } = useSelector((state) => state.product);
+  const token = useSelector((state) => state.auth.token); 
+
+
 
   useEffect(() => {
     if (decryptedId) {
@@ -31,13 +34,29 @@ const ProductDetail = () => {
   if (!product) return <p className="text-center mt-10">No product found</p>;
 
   const handleAddToCart = () => {
+    if (!token) {
+    toast.error("Please log in to continue");
+    navigate("/login");
+    return;
+  }
+
     dispatch(addToCart({ product_id: decryptedId, quantity: 1 }))
       .unwrap()
       .then(() => toast.success("Item added to cart!"))
-      .catch((err) => toast.error("Error: " + err));
+      .catch((err) =>{ 
+        toast.error("Error: " + err)
+      });
   };
 
   const handleBuySingle = () => {
+
+    if (!token) {
+    toast.error("Please log in to continue");
+    navigate("/login");
+    return;
+  }
+
+
     navigate(`/checkout?type=single&id=${product.id}`);
   };
 

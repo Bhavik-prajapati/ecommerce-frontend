@@ -1,4 +1,3 @@
-import { Provider } from "react-redux"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import Dashboard from "./redux/pages/Dashboard"
 import Login from "./redux/pages/Login"
@@ -13,24 +12,27 @@ import Checkout from "./redux/pages/Checkout"
 import Profile from "./redux/pages/Profile"
 import Myorders from "./redux/pages/Myorders"
 
-
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
+        {/* Public Routes */}
+        <Route path="/" element={<Dashboard />} />
         <Route path="/login" element={<Login />} /> 
         <Route path="/signup" element={<Signup />} />
         <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/dashboard" element={<ProtectedRoute> <Dashboard/> </ProtectedRoute>}/>
-        <Route path="/cart" element={<ProtectedRoute> <Cart/> </ProtectedRoute>}/>
-        <Route path="/checkout" element={<ProtectedRoute> <Checkout/> </ProtectedRoute>}/>
-        <Route path="/profile" element={<ProtectedRoute> <Profile/> </ProtectedRoute>}/>
-        <Route path="/myorders" element={<ProtectedRoute> <Myorders/> </ProtectedRoute>}/>
+
+        {/* Protected Routes (require login) */}
+        <Route path="/cart" element={<ProtectedRoute><Cart/></ProtectedRoute>} />
+        <Route path="/checkout" element={<ProtectedRoute><Checkout/></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
+        <Route path="/myorders" element={<ProtectedRoute><Myorders/></ProtectedRoute>} />
+
+        {/* Catch-all */}
         <Route path="*" element={<p>error...</p>} />
       </Routes>
 
-    <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-right" autoClose={3000} />
     </BrowserRouter>
   )
 }
