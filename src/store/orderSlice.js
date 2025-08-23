@@ -22,7 +22,6 @@ export const getOrders = createAsyncThunk(
   "order/getOrders",
   async (_, { rejectWithValue }) => {
     try {   
-      debugger;
       const res = await api.get("orders");
       return res.data;
     } catch (err) {
@@ -60,7 +59,6 @@ const orderSlice = createSlice({
         state.error = null;
       })
       .addCase(getOrders.fulfilled, (state, action) => {
-        debugger;
         state.loading = false;
         state.orders = action.payload
       })
