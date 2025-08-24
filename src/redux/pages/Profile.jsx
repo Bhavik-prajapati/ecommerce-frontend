@@ -41,7 +41,7 @@ const Profile = () => {
                 className={`pb-2 px-2 text-sm font-semibold transition ${
                   activeTab === tab
                     ? "text-indigo-600 border-b-4 border-gradient-to-r from-orange-500 to-pink-500"
-                    : "text-gray-600 hover:text-indigo-500"
+                    : "text-gray-600 hover:text-indigo-500 cursor-pointer"
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
@@ -57,7 +57,7 @@ const Profile = () => {
           {/* Tab Content */}
           {activeTab === "info" && user && (
             <div className="bg-white shadow-2xl rounded-2xl p-6 max-w-xl mx-auto space-y-4">
-              <h2 className="text-xl font-semibold mb-2">Personal Info</h2>
+              <h2 className="text-xl font-semibold mb-2 ">Personal Info</h2>
               <p>
                 <span className="font-medium">Name:</span> {user.name}
               </p>
