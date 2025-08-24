@@ -31,10 +31,10 @@ const Checkout = () => {
   const { product, loading: productLoading, error: productError } = useSelector(
     (state) => state.product
   );
-  const { order, loading: orderLoading, error: orderError } = useSelector(
+  const { loading: orderLoading, error: orderError } = useSelector(
     (state) => state.order
   );
-  const { items } = useSelector((state) => state.cart); // ✅ changed: added cart items
+  const { items } = useSelector((state) => state.cart);
 
   useEffect(() => {
     if (type === "single" && id) {
@@ -42,8 +42,10 @@ const Checkout = () => {
     }
   }, [dispatch, id, type]);
 
-  const totalAmount = product ? quantity * parseFloat(product.price) : 0;
-
+  const totalAmount =
+    type === "single"
+      ? quantity * parseFloat(product?.price || 0)
+      : items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const handleChange = (e) => {
     setAddress({ ...address, [e.target.name]: e.target.value });
@@ -70,35 +72,27 @@ const Checkout = () => {
       return;
     }
 
-    // ✅ changed: calculate totalAmount differently for cart/single
-    const totalAmount =
-      type === "single"
-        ? quantity * parseFloat(product?.price || 0)
-        : items.reduce(
-            (sum, item) => sum + item.price * item.quantity,
-            0
-          );
-
-    // ✅ changed: build orderData differently for cart/single
-    const orderData =
-      type === "single"
-        ? {
-            productId: id,
-            product: product?.name,
-            quantity,
-            total: totalAmount.toFixed(2),
-            shippingAddress: { ...address },
-          }
-        : {
-            products: items.map((item) => ({
+    // ✅ always send products array
+    const orderData = {
+      products:
+        type === "single"
+          ? [
+              {
+                productId: product.id,
+                name: product.name,
+                quantity,
+                price: product.price,
+              },
+            ]
+          : items.map((item) => ({
               productId: item.product_id,
               name: item.name,
               quantity: item.quantity,
               price: item.price,
             })),
-            total: totalAmount.toFixed(2),
-            shippingAddress: { ...address },
-          };
+      total: totalAmount.toFixed(2),
+      shippingAddress: { ...address },
+    };
 
     const res = await dispatch(createOrder(orderData));
     if (res.meta.requestStatus !== "fulfilled") {
@@ -106,7 +100,8 @@ const Checkout = () => {
       return;
     }
 
-    const orderId = res.payload.orders[0].id;
+    // ✅ backend now returns single order object
+    const orderId = res.payload.order.id;
 
     const data = (
       await api.post("http://localhost:5000/api/payment/razorpay", {
@@ -120,7 +115,6 @@ const Checkout = () => {
     const isLoaded = await loadRazorpay();
     if (!isLoaded) return toast.error("❌ Razorpay SDK failed to load");
 
-    // ✅ changed: description depends on checkout type
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY,
       amount: data.amount,
@@ -165,12 +159,9 @@ const Checkout = () => {
       </p>
     );
 
-  // ✅ changed: conditionally check product only if single mode
   if (type === "single" && !product)
     return (
-      <p className="text-center mt-20 text-gray-500">
-        Product not found.
-      </p>
+      <p className="text-center mt-20 text-gray-500">Product not found.</p>
     );
 
   return (
@@ -182,7 +173,6 @@ const Checkout = () => {
             Checkout
           </h1>
 
-          {/* ✅ changed: conditional UI for single vs cart */}
           {type === "single" ? (
             <div className="bg-white rounded-2xl shadow-2xl p-6 flex flex-col md:flex-row gap-6 border border-indigo-100">
               <img
@@ -190,7 +180,6 @@ const Checkout = () => {
                 alt={product.name}
                 className="w-full md:w-48 h-48 object-contain rounded-xl shadow hover:scale-105 transform transition duration-300"
               />
-
               <div className="flex-1 space-y-4">
                 <h2 className="text-2xl font-bold text-gray-800">
                   {product.name}
@@ -201,16 +190,13 @@ const Checkout = () => {
                 </p>
                 <div className="flex items-center gap-4 text-gray-500 text-sm">
                   <span>
-                    ⭐ {product?.average_rating} (
-                    {product?.rating_count} reviews)
+                    ⭐ {product?.average_rating} ({product?.rating_count} reviews)
                   </span>
                   <span>| Stock: {product?.stock}</span>
                 </div>
 
                 <div className="mt-2 flex items-center gap-2">
-                  <label className="font-medium text-gray-700">
-                    Quantity:
-                  </label>
+                  <label className="font-medium text-gray-700">Quantity:</label>
                   <input
                     type="number"
                     value={quantity}
@@ -229,8 +215,7 @@ const Checkout = () => {
                 </div>
 
                 <p className="text-lg font-semibold text-gray-800">
-                  Total: ₹
-                  {(quantity * parseFloat(product.price)).toFixed(2)}
+                  Total: ₹{(quantity * parseFloat(product.price)).toFixed(2)}
                 </p>
 
                 <button
@@ -246,10 +231,7 @@ const Checkout = () => {
               <h2 className="text-xl font-bold mb-4">Cart Items</h2>
               <ul className="divide-y divide-gray-200">
                 {items.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex justify-between py-3"
-                  >
+                  <li key={item.id} className="flex justify-between py-3">
                     <span>
                       {item.name} × {item.quantity}
                     </span>
@@ -262,7 +244,6 @@ const Checkout = () => {
               <p className="text-lg font-bold mt-4">
                 Total: ₹{totalAmount.toFixed(2)}
               </p>
-
               <button
                 onClick={handleOrder}
                 className="w-full mt-4 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold shadow hover:opacity-90 transition cursor-pointer"
@@ -273,7 +254,6 @@ const Checkout = () => {
           )}
         </div>
 
-        {/* Address Modal */}
         {showAddressForm && (
           <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
             <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg transform transition-all scale-95 animate-fade-in">
@@ -299,16 +279,13 @@ const Checkout = () => {
                     value={address[name]}
                     onChange={handleChange}
                     className={`border border-indigo-200 rounded-lg px-3 py-2 col-span-2 ${
-                      ["city", "state", "postal_code", "country"].includes(
-                        name
-                      )
+                      ["city", "state", "postal_code", "country"].includes(name)
                         ? "col-span-1"
                         : ""
                     } focus:ring-2 focus:ring-orange-400`}
                   />
                 ))}
               </form>
-
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={handlePayNow}
@@ -339,7 +316,6 @@ const Checkout = () => {
           </div>
         )}
       </div>
-
       <style>{`
         @keyframes fade-in { from { opacity:0; transform:scale(0.95);} to { opacity:1; transform:scale(1);} }
         .animate-fade-in { animation: fade-in 0.25s ease-out; }
