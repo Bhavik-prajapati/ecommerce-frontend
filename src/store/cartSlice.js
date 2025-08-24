@@ -58,7 +58,6 @@ export const clearCartItem = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const res = await api.delete(`cart`);
-      debugger;
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.error || "Error removing item");
