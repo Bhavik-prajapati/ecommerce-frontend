@@ -33,8 +33,8 @@ const Cart = () => {
     navigate("/checkout", { state: { type: "cart" } });
   };
 
-  const handleBuySingle = (id) => {
-    navigate(`/checkout?type=single&id=${id}`);
+  const handleBuySingle = (item) => {
+    navigate(`/checkout?type=single&id=${item.product_id}&qnty=${item.quantity}`);
   };
 
   if (loading)
@@ -104,7 +104,7 @@ const Cart = () => {
                           Remove
                         </button>
                         <button
-                          onClick={() => handleBuySingle(item.product_id)}
+                          onClick={() => handleBuySingle(item)}
                           className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-3 py-1 rounded-lg hover:opacity-90 transition"
                         >
                           Buy Now

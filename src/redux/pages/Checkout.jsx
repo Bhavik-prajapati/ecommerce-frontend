@@ -13,8 +13,9 @@ const Checkout = () => {
   const query = new URLSearchParams(location.search);
   const id = query.get("id");
   const type = query.get("type");
+  const qnty=query.get("qnty")?query.get("qnty"):1;;
 
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(qnty ? qnty :1);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [address, setAddress] = useState({
     receivername: "",

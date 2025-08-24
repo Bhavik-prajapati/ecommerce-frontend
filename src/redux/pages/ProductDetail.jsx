@@ -35,10 +35,9 @@ const ProductDetail = () => {
     return <p className="text-center mt-20 text-lg text-gray-500">No product found</p>;
 
   const handleAddToCart = () => {
-    debugger;
     dispatch(addToCart({ product_id: decryptedId, quantity: 1 }))
       .unwrap()
-      .then(() => toast.success("Item added to cart!"))
+      .then(() =>{})
       .catch((err) => toast.error("Error: " + err));
   };
 
