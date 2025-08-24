@@ -12,14 +12,6 @@ const ProductCard = ({ products }) => {
   const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   const handleAddToCart = (product) => {
-   /*  const token = localStorage.getItem("token"); // ✅ get token from localStorage (or Redux if you store it there)
-
-    if (!token) {
-      toast.error("Please log in to continue"); 
-      navigate("/login");
-      return;
-    } */
-
     dispatch(addToCart({ product_id: product.id, quantity: 1 }));
     toast.success("Item added to cart!");
   };

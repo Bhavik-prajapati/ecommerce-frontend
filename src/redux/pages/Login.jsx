@@ -21,12 +21,26 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Show a toast loader
+    const toastId = toast.loading("Signing in...");
+
     dispatch(loginUser(formdata)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        toast.success("Welcome back! 🛍️");
+        toast.update(toastId, { 
+          render: "Welcome back! 🛍️", 
+          type: "success", 
+          isLoading: false, 
+          autoClose: 3000 
+        });
         navigate("/");
       } else {
-        toast.warning(res.payload);
+        toast.update(toastId, { 
+          render: res.payload || "Login failed", 
+          type: "error", 
+          isLoading: false, 
+          autoClose: 3000 
+        });
       }
     });
   };
@@ -92,7 +106,7 @@ const Login = () => {
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:opacity-90 active:scale-95 transition duration-200 disabled:opacity-50"
             >
-              {loading ? "Signing in..." : <> <LogIn size={20}/> Login</>}
+              <LogIn size={20}/> Login
             </button>
           </form>
 

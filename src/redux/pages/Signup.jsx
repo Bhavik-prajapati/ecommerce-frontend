@@ -22,12 +22,26 @@ const Signup = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Show toast loader
+    const toastId = toast.loading("Signing up...");
+
     dispatch(signupUser(formdata)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        toast.success("Signup successful 🎉");
+        toast.update(toastId, {
+          render: "Signup successful 🎉",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
         navigate("/login"); // redirect to login after signup
       } else {
-        toast.warning(res.payload);
+        toast.update(toastId, {
+          render: res.payload || "Signup failed",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
       }
     });
   };
@@ -107,7 +121,7 @@ const Signup = () => {
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:opacity-90 active:scale-95 transition duration-200 disabled:opacity-50"
             >
-              {loading ? "Signing up..." : <> <UserPlus size={20}/> Sign Up</>}
+              <UserPlus size={20}/> {loading ? "Signing up..." : "Sign Up"}
             </button>
           </form>
 

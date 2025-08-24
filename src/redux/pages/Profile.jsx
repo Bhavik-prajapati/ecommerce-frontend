@@ -25,7 +25,7 @@ const Profile = () => {
       <Header />
       <div className="min-h-screen bg-gradient-to-r from-orange-50 via-rose-50 to-pink-50 py-10">
         <div className="max-w-5xl mx-auto px-6">
-          <h1 className="text-3xl font-extrabold text-indigo-600 mb-8 text-center">
+          <h1 className="text-3xl font-extrabold text-gray-800 ">
             My Profile
           </h1>
 
