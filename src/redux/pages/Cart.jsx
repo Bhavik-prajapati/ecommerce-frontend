@@ -31,7 +31,6 @@ const Cart = () => {
 
   const handleBuyCart = () => {
     navigate(`/checkout?type=cart`);
-    // navigate("/checkout", { state: { type: "cart" } });
   };
 
   const handleBuySingle = (item) => {

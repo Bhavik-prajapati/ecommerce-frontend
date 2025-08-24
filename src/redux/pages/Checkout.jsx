@@ -6,6 +6,7 @@ import api from "../../store/api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Header from "../../Components/Header";
+import { clearCartItem } from "../../store/cartSlice";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Checkout = () => {
   const query = new URLSearchParams(location.search);
   const id = query.get("id");
   const type = query.get("type");
+  console.log(type,"type..")
   const qnty = query.get("qnty") ? query.get("qnty") : 1;
 
   const [quantity, setQuantity] = useState(qnty ? qnty : 1);
@@ -132,6 +134,11 @@ const Checkout = () => {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_signature: response.razorpay_signature,
           });
+
+          if(type === "cart"){
+            dispatch(clearCartItem());
+          }
+
           navigate("/myorders");
         } catch (err) {
           toast.error("❌ Failed to update order");

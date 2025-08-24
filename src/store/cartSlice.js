@@ -53,6 +53,19 @@ export const removeCartItem = createAsyncThunk(
   }
 );
 
+export const clearCartItem = createAsyncThunk(
+  "cart/removeCartItem",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.delete(`cart`);
+      debugger;
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.error || "Error removing item");
+    }
+  }
+);
+
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
