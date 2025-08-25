@@ -35,7 +35,7 @@ export const loginUser = createAsyncThunk(
   async (userdata, { rejectWithValue }) => {
     try {
       const res = await apiwithoutauth.post(
-        "http://localhost:5000/api/auth/login",
+        "auth/login",
         userdata,
         { headers: { "Content-Type": "application/json" } }
       );

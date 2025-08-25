@@ -106,7 +106,7 @@ const Checkout = () => {
     const orderId = res.payload.order.id;
 
     const data = (
-      await api.post("http://localhost:5000/api/payment/razorpay", {
+      await api.post("payment/razorpay", {
         amount: totalAmount,
         currency: "INR",
         receipt: "order_" + Date.now(),

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import api from "../store/api";
 
 const ProtectedRoute = ({ children }) => {
   const token = useSelector((state) => state.auth.token);
@@ -14,8 +15,8 @@ const ProtectedRoute = ({ children }) => {
         return;
       }
       try {
-        const res = await axios.post(
-          "http://localhost:5000/api/auth/verify",
+        const res = await api.post(
+          "api/auth/verify",
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
