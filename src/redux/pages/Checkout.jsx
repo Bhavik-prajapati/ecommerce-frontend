@@ -65,14 +65,23 @@ const Checkout = () => {
     });
 
   const handlePayNow = async () => {
-    if (
-      Object.values(address).some(
-        (v) => !v.trim() && v !== address.address_line2
-      )
-    ) {
-      toast.error("⚠️ Please fill all required fields");
-      return;
-    }
+    
+const requiredFields = [
+  "receivername",
+  "mobile_no",
+  "address_line1",
+  "city",
+  "state",
+  "postal_code",
+  "country",
+];
+
+const isInvalid = requiredFields.some((field) => !address[field].trim());
+
+if (isInvalid) {
+  toast.error("⚠️ Please fill all required fields");
+  return;
+}
 
     // ✅ always send products array
     const orderData = {
