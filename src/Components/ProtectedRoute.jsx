@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children }) => {
       }
       try {
         const res = await api.post(
-          "api/auth/verify",
+          "auth/verify",
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
