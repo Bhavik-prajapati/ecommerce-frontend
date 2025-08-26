@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile, logout } from "../../store/userSlice";
 import { toast } from "react-toastify";
+import { Download } from "lucide-react";
+
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("info");
@@ -89,7 +91,7 @@ const Profile = () => {
                       pdfMakeModule.vfs = pdfFontsModule.pdfMake?.vfs || pdfFontsModule.vfs;
 
                       const total = order.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
-                      const tax = total * 0;
+                      const tax = total * 0.0;
                       // const grandTotal = total + tax; 
                       const grandTotal = total; 
 
@@ -195,6 +197,8 @@ const Profile = () => {
                         defaultStyle: { fontSize: 12 }
                       };
 
+                      toast.success("Downloading Invoice");
+
                       pdfMakeModule.createPdf(docDefinition).download(`invoice_${order.order_id}.pdf`);
                     };
 
@@ -225,11 +229,13 @@ const Profile = () => {
                         </ul>
 
                         <button
-                          onClick={downloadInvoice}
-                          className="mt-2 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-                        >
-                          Download Invoice
-                        </button>
+  onClick={downloadInvoice}
+  className="mt-4 w-40 flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white py-3 rounded-xl shadow-lg hover:opacity-90 transition font-semibold"
+>
+  <Download size={20} /> Invoice
+</button>
+
+
                       </li>
                     );
                   })}

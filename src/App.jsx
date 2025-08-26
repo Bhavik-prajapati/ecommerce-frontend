@@ -7,11 +7,8 @@ import ProductDetail from "./redux/pages/ProductDetail";
 import Cart from "./redux/pages/Cart";
 import Checkout from "./redux/pages/Checkout";
 import Profile from "./redux/pages/Profile";
-import Myorders from "./redux/pages/Myorders";
-
 import { ToastContainer } from "react-toastify"; // ✅ only once
 import "react-toastify/dist/ReactToastify.css";    // ✅ only once
-import InvoicePage from "./redux/pages/InvoicePage";
 
 const App = () => {
   return (
