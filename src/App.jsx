@@ -30,10 +30,6 @@ const App = () => {
         <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/invoice/:orderId" element={<ProtectedRoute> <InvoicePage /> </ProtectedRoute>} />
-
-        <Route path="/myorders" element={<ProtectedRoute><Myorders /></ProtectedRoute>} />
 
         {/* Catch-all */}
         <Route path="*" element={<p>Page not found</p>} />
