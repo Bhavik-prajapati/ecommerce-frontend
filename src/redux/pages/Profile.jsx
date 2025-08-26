@@ -77,29 +77,45 @@ const Profile = () => {
           )}
 
           {activeTab === "orders" && (
-            <div className="bg-white shadow-2xl rounded-2xl p-6 max-w-3xl mx-auto space-y-4">
-              <h2 className="text-xl font-semibold mb-4">My Orders</h2>
-              {user?.orders?.length > 0 ? (
-                <ul className="space-y-4">
-                  {user.orders.map((order) => (
-                    <li
-                      key={order.id}
-                      className="p-4 border rounded-xl flex justify-between items-center shadow-sm hover:shadow-md transition"
-                    >
-                      <div>
-                        <p className="font-medium">Order #{order.id}</p>
-                        <p className="text-sm text-gray-500">Status: {order.payment_status}</p>
-                        <p className="text-sm text-gray-500">Quantity: {order.quantity}</p>
-                      </div>
-                      <span className="font-semibold text-indigo-600">₹{order.total_price}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-500 text-center">You have no orders yet.</p>
-              )}
-            </div>
-          )}
+  <div className="bg-white shadow-2xl rounded-2xl p-6 max-w-3xl mx-auto space-y-4">
+    <h2 className="text-xl font-semibold mb-4">My Orders</h2>
+    {user?.orders?.length > 0 ? (
+      <ul className="space-y-4">
+        {user.orders.map((order) => (
+          <li
+            key={order.order_id}
+            className="p-4 border rounded-xl shadow-sm hover:shadow-md transition"
+          >
+            <p className="font-medium mb-2">Order #{order.order_id}</p>
+            <p className="text-sm text-gray-500 mb-2">Order Date: {new Date(order.order_date).toLocaleString()}</p>
+            
+            {/* Products in this order */}
+            <ul className="space-y-2">
+              {order.items.map((item) => (
+                <li key={item.product_id} className="flex items-center gap-4">
+                  <img
+                    src={item.image_url}
+                    alt={item.product_name}
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <div>
+                    <p className="font-semibold">{item.product_name}</p>
+                    <p className="text-sm text-gray-500">
+                      Qty: {item.quantity} | ₹{item.price * item.quantity}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-gray-500 text-center">You have no orders yet.</p>
+    )}
+  </div>
+)}
+
 
           {activeTab === "contact" && (
             <div className="bg-white shadow-2xl rounded-2xl p-6 max-w-xl mx-auto space-y-3">

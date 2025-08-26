@@ -78,7 +78,7 @@ const ProductDetail = () => {
               {/* Buy Now */}
               <button
                 onClick={handleBuySingle}
-                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-3 rounded-2xl shadow-lg hover:opacity-90 active:scale-95 transition duration-200 font-semibold"
+                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-3 rounded-2xl shadow-lg hover:opacity-90 active:scale-95 transition duration-200 font-semibold cursor-pointer"
               >
                 <CreditCard size={20} /> Buy Now
               </button>
@@ -86,7 +86,7 @@ const ProductDetail = () => {
               {/* Add to Cart */}
               <button
                 onClick={handleAddToCart}
-                className="flex items-center gap-2 border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-2xl shadow hover:bg-orange-50 active:scale-95 transition duration-200 font-semibold"
+                className="flex items-center gap-2 border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-2xl shadow hover:bg-orange-50 active:scale-95 transition duration-200 font-semibold cursor-pointer"
               >
                 <ShoppingCart size={20} /> Add to Cart
               </button>

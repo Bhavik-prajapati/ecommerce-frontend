@@ -105,7 +105,7 @@ const Cart = () => {
                         </button>
                         <button
                           onClick={() => handleBuySingle(item)}
-                          className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-3 py-1 rounded-lg hover:opacity-90 transition"
+                          className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-3 py-1 rounded-lg hover:opacity-90 transition cursor-pointer"
                         >
                           Buy Now
                         </button>

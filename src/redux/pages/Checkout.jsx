@@ -83,6 +83,9 @@ if (isInvalid) {
   return;
 }
 
+const toastId = toast.loading("⏳ Redirecting to payment...");
+
+
     // ✅ always send products array
     const orderData = {
       products:
@@ -107,7 +110,12 @@ if (isInvalid) {
 
     const res = await dispatch(createOrder(orderData));
     if (res.meta.requestStatus !== "fulfilled") {
-      toast.error("❌ Order failed: " + res.payload);
+      toast.update(toastId, {
+        render: "❌ Order failed: " + res.payload,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
       return;
     }
 
@@ -134,7 +142,14 @@ if (isInvalid) {
       description: type === "single" ? product?.name : "Cart Checkout",
       order_id: data.id,
       handler: async function (response) {
-        toast.success("✅ Payment successful!");
+        // toast.success("✅ Payment successful!");
+        toast.update(toastId, {
+          render: "✅ Payment successful!",
+          type: "success",
+          isLoading: false,
+          autoClose: 2000,
+        });
+
         setShowAddressForm(false);
         try {
           await api.post("payment/updateorderStatus", {

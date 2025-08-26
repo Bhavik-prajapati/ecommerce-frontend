@@ -49,14 +49,14 @@ const ProductCard = ({ products }) => {
                     )}`
                   )
                 }
-                className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-2 rounded-xl font-semibold hover:opacity-90 transition"
+                className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-2 rounded-xl font-semibold hover:opacity-90 transition cursor-pointer"
               >
                 View
               </button>
 
              <button
   onClick={() => handleAddToCart(product)}
-  className="flex items-center gap-2 border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-2xl shadow hover:bg-orange-50 active:scale-95 transition duration-200 font-semibold"
+  className="flex items-center gap-2 border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-2xl shadow hover:bg-orange-50 active:scale-95 transition duration-200 font-semibold cursor-pointer"
 >
    Add To Cart
 </button>
