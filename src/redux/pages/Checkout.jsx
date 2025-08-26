@@ -163,7 +163,7 @@ const toastId = toast.loading("⏳ Redirecting to payment...");
             dispatch(clearCartItem());
           }
 
-          navigate("/myorders");
+          navigate("/");
         } catch (err) {
           toast.error("❌ Failed to update order");
         }
