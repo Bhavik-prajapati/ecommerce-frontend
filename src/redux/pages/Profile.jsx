@@ -89,8 +89,9 @@ const Profile = () => {
                       pdfMakeModule.vfs = pdfFontsModule.pdfMake?.vfs || pdfFontsModule.vfs;
 
                       const total = order.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
-                      const tax = total * 0.18;
-                      const grandTotal = total + tax; 
+                      const tax = total * 0;
+                      // const grandTotal = total + tax; 
+                      const grandTotal = total; 
 
                       const docDefinition = {
                         pageSize: 'A4',
@@ -124,7 +125,7 @@ const Profile = () => {
                               },
                               {
                                 stack: [
-                                  { text: `Bill To: ${order.customer_name || "Customer"}`, bold: true, alignment: "right" },
+                                  { text: `Bill To: ${user.name}`, bold: true, alignment: "right" },
                                   { text: order.customer_email || "", alignment: "right" },
                                   { text: order.shipping_address || "", alignment: "right" }
                                 ]
@@ -168,7 +169,7 @@ const Profile = () => {
                                   { text: `₹${total}`, alignment: "right", bold: true }
                                 ],
                                 [
-                                  { text: "GST (18%)", colSpan: 4, alignment: "right", bold: true }, {}, {}, {},
+                                  { text: "GST (0%)", colSpan: 4, alignment: "right", bold: true }, {}, {}, {},
                                   { text: `₹${tax.toFixed(2)}`, alignment: "right", bold: true }
                                 ],
                                 [
@@ -219,7 +220,7 @@ const Profile = () => {
                                   Qty: {item.quantity} | ₹{item.price * item.quantity}
                                 </p>
                               </div>
-                            </li>
+                            </li> 
                           ))}
                         </ul>
 
