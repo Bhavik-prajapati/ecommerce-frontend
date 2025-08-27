@@ -64,28 +64,24 @@ const Checkout = () => {
     });
 
   const handlePayNow = async () => {
-    
-const requiredFields = [
-  "receivername",
-  "mobile_no",
-  "address_line1",
-  "city",
-  "state",
-  "postal_code",
-  "country",
-];
+    const requiredFields = [
+      "receivername",
+      "mobile_no",
+      "address_line1",
+      "city",
+      "state",
+      "postal_code",
+      "country",
+    ];
 
-const isInvalid = requiredFields.some((field) => !address[field].trim());
+    const isInvalid = requiredFields.some((field) => !address[field].trim());
+    if (isInvalid) {
+      toast.error("⚠️ Please fill all required fields");
+      return;
+    }
 
-if (isInvalid) {
-  toast.error("⚠️ Please fill all required fields");
-  return;
-}
+    const toastId = toast.loading("⏳ Redirecting to payment...");
 
-const toastId = toast.loading("⏳ Redirecting to payment...");
-
-
-    // ✅ always send products array
     const orderData = {
       products:
         type === "single"
@@ -118,7 +114,6 @@ const toastId = toast.loading("⏳ Redirecting to payment...");
       return;
     }
 
-    // ✅ backend now returns single order object
     const orderId = res.payload.order.id;
 
     const data = (
@@ -129,9 +124,16 @@ const toastId = toast.loading("⏳ Redirecting to payment...");
       })
     ).data;
 
-    if (!data.id) return toast.error("❌ Razorpay order creation failed");
+    if (!data.id) {
+      toast.error("❌ Razorpay order creation failed");
+      return;
+    }
+
     const isLoaded = await loadRazorpay();
-    if (!isLoaded) return toast.error("❌ Razorpay SDK failed to load");
+    if (!isLoaded) {
+      toast.error("❌ Razorpay SDK failed to load");
+      return;
+    }
 
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY,
@@ -141,7 +143,6 @@ const toastId = toast.loading("⏳ Redirecting to payment...");
       description: type === "single" ? product?.name : "Cart Checkout",
       order_id: data.id,
       handler: async function (response) {
-        // toast.success("✅ Payment successful!");
         toast.update(toastId, {
           render: "✅ Payment successful!",
           type: "success",
@@ -158,7 +159,7 @@ const toastId = toast.loading("⏳ Redirecting to payment...");
             razorpay_signature: response.razorpay_signature,
           });
 
-          if(type === "cart"){
+          if (type === "cart") {
             dispatch(clearCartItem());
           }
 
@@ -173,26 +174,40 @@ const toastId = toast.loading("⏳ Redirecting to payment...");
         contact: address.mobile_no,
       },
       theme: { color: "#fb923c" },
+      modal: {
+        ondismiss: function () {
+          toast.update(toastId, {
+            render: "❌ Payment cancelled",
+            type: "error",
+            isLoading: false,
+            autoClose: 2000,
+          });
+        },
+      },
     };
 
     new window.Razorpay(options).open();
   };
 
-  if (productLoading || orderLoading)
+  if (productLoading || orderLoading) {
     return (
       <p className="text-center mt-20 text-lg animate-pulse">Loading...</p>
     );
-  if (productError || orderError)
+  }
+
+  if (productError || orderError) {
     return (
       <p className="text-center mt-20 text-red-500 text-lg font-medium">
         Error: {productError || orderError}
       </p>
     );
+  }
 
-  if (type === "single" && !product)
+  if (type === "single" && !product) {
     return (
       <p className="text-center mt-20 text-gray-500">Product not found.</p>
     );
+  }
 
   return (
     <>
@@ -220,13 +235,16 @@ const toastId = toast.loading("⏳ Redirecting to payment...");
                 </p>
                 <div className="flex items-center gap-4 text-gray-500 text-sm">
                   <span>
-                    ⭐ {product?.average_rating} ({product?.rating_count} reviews)
+                    ⭐ {product?.average_rating} ({product?.rating_count}{" "}
+                    reviews)
                   </span>
                   <span>| Stock: {product?.stock}</span>
                 </div>
 
                 <div className="mt-2 flex items-center gap-2">
-                  <label className="font-medium text-gray-700">Quantity:</label>
+                  <label className="font-medium text-gray-700">
+                    Quantity:
+                  </label>
                   <input
                     type="number"
                     value={quantity}
@@ -309,7 +327,9 @@ const toastId = toast.loading("⏳ Redirecting to payment...");
                     value={address[name]}
                     onChange={handleChange}
                     className={`border border-indigo-200 rounded-lg px-3 py-2 col-span-2 ${
-                      ["city", "state", "postal_code", "country"].includes(name)
+                      ["city", "state", "postal_code", "country"].includes(
+                        name
+                      )
                         ? "col-span-1"
                         : ""
                     } focus:ring-2 focus:ring-orange-400`}
@@ -347,8 +367,13 @@ const toastId = toast.loading("⏳ Redirecting to payment...");
         )}
       </div>
       <style>{`
-        @keyframes fade-in { from { opacity:0; transform:scale(0.95);} to { opacity:1; transform:scale(1);} }
-        .animate-fade-in { animation: fade-in 0.25s ease-out; }
+        @keyframes fade-in {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.25s ease-out;
+        }
       `}</style>
     </>
   );
