@@ -84,7 +84,6 @@ const Profile = () => {
               {user?.orders?.length > 0 ? (
                 <ul className="space-y-4">
                   {user.orders.map((order) => {
-                    // Invoice download function for this order
                     const downloadInvoice = async () => {
                       const pdfMakeModule = (await import("pdfmake/build/pdfmake")).default || (await import("pdfmake/build/pdfmake"));
                       const pdfFontsModule = (await import("pdfmake/build/vfs_fonts")).default || (await import("pdfmake/build/vfs_fonts"));
@@ -92,73 +91,73 @@ const Profile = () => {
 
                       const total = order.items.reduce((acc, i) => acc + i.price * i.quantity, 0);
                       const tax = total * 0.0;
-                      // const grandTotal = total + tax; 
-                      const grandTotal = total; 
+                      const grandTotal = total + tax;
+                      const orderDate = new Date(order.order_date).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+                      const dueDate = new Date(new Date().setDate(new Date(order.order_date).getDate() + 7)).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+
 
                       const docDefinition = {
-                        pageSize: 'A4',
-                        pageMargins: [40, 60, 40, 60],
-
                         content: [
-                          // Header with gradient-like logo simulation
+                          // Header Section
                           {
                             columns: [
+                              { text: "ShopEase", style: "header" },
                               {
-                                text: [
-                                  { text: "Shop", color: "#f97316", bold: true, fontSize: 24 },  // orange
-                                  { text: "Ease", color: "#ec4899", bold: true, fontSize: 24 }   // pink
-                                ]
+                                text: `Invoice #${order.order_id}\nCreated: ${orderDate}\nDue: ${dueDate}`,
+                                alignment: "right",
+                                margin: [0, 0, 0, 20]
                               },
-                              { text: "INVOICE", fontSize: 26, bold: true, alignment: "right", color: "#4f46e5" }
                             ]
                           },
-                          { text: "\n" },
 
-                          // Seller & Customer Info
+                          // Information Section (Seller & Customer)
                           {
                             columns: [
                               {
                                 stack: [
-                                  { text: "ShopEase Pvt Ltd", bold: true },
-                                  { text: "123 Market Street, Ahmedabad, Gujarat" },
-                                  { text: "Email: support@shopease.com" },
-                                  { text: "Phone: +91 9876543210" }
-                                ]
+                                  "ShopEase Pvt Ltd",
+                                  "123 Market Street",
+                                  "Ahmedabad, Gujarat, 380001"
+                                ],
+                                margin: [0, 0, 0, 20]
                               },
                               {
                                 stack: [
-                                  { text: `Bill To: ${user.name}`, bold: true, alignment: "right" },
-                                  { text: order.customer_email || "", alignment: "right" },
-                                  { text: order.shipping_address || "", alignment: "right" }
-                                ]
+                                  `Bill To: ${user.name}`,
+                                  order.customer_email || "N/A",
+                                  order.shipping_address || "N/A",
+                                  `Phone: ${order.customer_phone || "N/A"}`
+                                ],
+                                alignment: "right",
+                                margin: [0, 0, 0, 20]
                               }
-                            ],
-                            columnGap: 20,
-                            margin: [0, 0, 0, 20]
+                            ]
                           },
 
-                          // Order Info
+                          // Payment Method
                           {
                             columns: [
-                              { text: `Order ID: ${order.order_id}`, bold: true },
-                              { text: `Date: ${new Date(order.order_date).toLocaleString()}`, alignment: "right" },
-                              { text: `Payment: ${order.payment_method || "Online"}`, alignment: "right" }
+                              { text: "Payment Method", style: "tableHeader" },
+                              { text: order.payment_method || "N/A", style: "details" },
+                              { text: `Txn ID: ${order.transaction_id || "N/A"}`, alignment: "right", style: "details" },
                             ],
                             margin: [0, 0, 0, 20]
                           },
-
+                          
                           // Items Table
                           {
                             table: {
                               widths: ["*", "auto", "auto", "auto", "auto"],
                               body: [
+                                // Table Headers
                                 [
-                                  { text: "Item", bold: true, fillColor: "#fbbf24" },          // yellow header
-                                  { text: "Description", bold: true, fillColor: "#fbbf24" },
-                                  { text: "Quantity", bold: true, fillColor: "#fbbf24", alignment: "right" },
-                                  { text: "Unit Price", bold: true, fillColor: "#fbbf24", alignment: "right" },
-                                  { text: "Total", bold: true, fillColor: "#fbbf24", alignment: "right" }
+                                  { text: "Item", style: "tableHeader" },
+                                  { text: "Description", style: "tableHeader" },
+                                  { text: "Qty", style: "tableHeader" },
+                                  { text: "Unit Price", style: "tableHeader" },
+                                  { text: "Total", style: "tableHeader" },
                                 ],
+                                // Table Body - dynamically mapped items
                                 ...order.items.map(i => [
                                   i.product_name,
                                   i.description || "-",
@@ -166,47 +165,85 @@ const Profile = () => {
                                   { text: `₹${i.price}`, alignment: "right" },
                                   { text: `₹${i.price * i.quantity}`, alignment: "right" }
                                 ]),
+                                // Subtotal row
                                 [
-                                  { text: "Subtotal", colSpan: 4, alignment: "right", bold: true }, {}, {}, {},
-                                  { text: `₹${total}`, alignment: "right", bold: true }
+                                  { text: "Subtotal", colSpan: 4, alignment: "right", bold: true, border: [false, true, false, false], margin: [0, 5, 0, 0] },
+                                  {}, {}, {},
+                                  { text: `₹${total}`, alignment: "right", bold: true, border: [false, true, false, false], margin: [0, 5, 0, 0] }
                                 ],
+                                // Tax row
                                 [
-                                  { text: "GST (0%)", colSpan: 4, alignment: "right", bold: true }, {}, {}, {},
-                                  { text: `₹${tax.toFixed(2)}`, alignment: "right", bold: true }
+                                  { text: "GST (0%)", colSpan: 4, alignment: "right", bold: true, border: [false, false, false, false] },
+                                  {}, {}, {},
+                                  { text: `₹${tax.toFixed(2)}`, alignment: "right", bold: true, border: [false, false, false, false] }
                                 ],
+                                // Grand Total row
                                 [
-                                  { text: "Grand Total", colSpan: 4, alignment: "right", bold: true, fillColor: "#fbbf24" }, {}, {}, {},
-                                  { text: `₹${grandTotal.toFixed(2)}`, alignment: "right", bold: true, fillColor: "#fbbf24" }
+                                  { text: "Grand Total", colSpan: 4, alignment: "right", bold: true, style: "totalRow" },
+                                  {}, {}, {},
+                                  { text: `₹${grandTotal.toFixed(2)}`, alignment: "right", bold: true, style: "totalRow" }
                                 ]
                               ]
                             },
-                            layout: {
-                              fillColor: (rowIndex) => rowIndex % 2 === 0 ? "#fef3c7" : null, // light yellow stripes
-                              hLineWidth: () => 0.5,
-                              vLineWidth: () => 0.5,
-                              hLineColor: () => "#fbbf24",
-                              vLineColor: () => "#fbbf24"
-                            },
-                            margin: [0, 0, 0, 20]
+                            layout: "noBorders", // To get rid of outer border
+                            margin: [0, 20, 0, 0]
                           },
 
                           // Footer
-                          { text: "Thank you for shopping with ShopEase!", alignment: "center", italics: true, color: "#ec4899" },
-                          { text: "Visit us at: www.shopease.com", alignment: "center", italics: true, color: "#f97316" }
+                          { text: "Thank you for shopping with ShopEase!", style: "footer" },
+                          { text: "Visit us at: www.shopease.com", style: "footer" }
                         ],
-                        defaultStyle: { fontSize: 12 }
+
+                        styles: {
+                          header: {
+                            fontSize: 45,
+                            bold: true,
+                            color: "#4f46e5",
+                            margin: [0, 0, 0, 20]
+                          },
+                          tableHeader: {
+                            bold: true,
+                            fontSize: 13,
+                            color: "white",
+                            fillColor: "#4f46e5",
+                            alignment: "center",
+                            margin: [5, 5, 5, 5]
+                          },
+                          details: {
+                            fontSize: 12
+                          },
+                          totalRow: {
+                            fontSize: 14,
+                            bold: true,
+                            fillColor: "#f0f0f0", // Light gray background for total row
+                            margin: [0, 5, 0, 5]
+                          },
+                          footer: {
+                            alignment: "center",
+                            italics: true,
+                            color: "#888",
+                            margin: [0, 20, 0, 0]
+                          }
+                        },
+                        defaultStyle: {
+                          font: "Roboto"
+                        },
+                        fonts: {
+                          Roboto: {
+                            normal: 'Roboto-Regular.ttf',
+                            bold: 'Roboto-Medium.ttf',
+                            italics: 'Roboto-Italic.ttf',
+                            bolditalics: 'Roboto-MediumItalic.ttf'
+                          }
+                        }
                       };
 
                       toast.success("Downloading Invoice");
-
                       pdfMakeModule.createPdf(docDefinition).download(`invoice_${order.order_id}.pdf`);
                     };
 
                     return (
-                      <li
-                        key={order.order_id}
-                        className="p-4 border rounded-xl shadow-sm hover:shadow-md transition"
-                      >
+                      <li key={order.order_id} className="p-4 border rounded-xl shadow-sm hover:shadow-md transition">
                         <p className="font-medium mb-2">Order #{order.order_id}</p>
                         <p className="text-sm text-gray-500 mb-2">Order Date: {new Date(order.order_date).toLocaleString()}</p>
 
@@ -224,18 +261,16 @@ const Profile = () => {
                                   Qty: {item.quantity} | ₹{item.price * item.quantity}
                                 </p>
                               </div>
-                            </li> 
+                            </li>
                           ))}
                         </ul>
 
                         <button
-  onClick={downloadInvoice}
-  className="mt-4 w-40 flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white py-3 rounded-xl shadow-lg hover:opacity-90 transition font-semibold cursor-pointer"
->
-  <Download size={20} /> Invoice
-</button>
-
-
+                          onClick={downloadInvoice}
+                          className="mt-4 w-40 flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white py-3 rounded-xl shadow-lg hover:opacity-90 transition font-semibold cursor-pointer"
+                        >
+                          <Download size={20} /> Invoice
+                        </button>
                       </li>
                     );
                   })}
@@ -245,8 +280,6 @@ const Profile = () => {
               )}
             </div>
           )}
-
-
 
           {activeTab === "contact" && (
             <div className="bg-white shadow-2xl rounded-2xl p-6 max-w-xl mx-auto space-y-3">
