@@ -135,7 +135,6 @@ const ProductDetail = () => {
               </button>
             </div>
 
-            {/* Feedback List */}
             {reviewsLoading && <p>Loading reviews...</p>}
             {reviewsError && <p className="text-red-500">{reviewsError}</p>}
 
@@ -147,7 +146,7 @@ const ProductDetail = () => {
                     className="bg-white border border-gray-200 shadow-md rounded-2xl p-5 hover:shadow-xl transition transform hover:-translate-y-1"
                   >
                     <div className="flex justify-between items-center mb-2">
-                      <p className="font-semibold text-gray-800">{fb.user_name || fb.user}</p>
+                      <p className="font-semibold text-gray-800">{fb.user_name || 'You'}</p>
                       <p className="text-yellow-500 font-bold">{fb.rating || 5}★</p>
                     </div>
                     <p className="text-gray-600">{fb.comment || fb.message}</p>

@@ -5,6 +5,7 @@ import cartReducer from "./cartSlice";
 import shippingReducer from "./shippingSlice";
 import orderReducer from "./orderSlice";
 import userReducer from "./userSlice";
+import reviewReducer from "./reviewSlice";
 
 
 const store=configureStore({
@@ -14,7 +15,8 @@ const store=configureStore({
         cart: cartReducer,
         shipping:shippingReducer,
         order: orderReducer,
-        user: userReducer
+        user: userReducer,
+        reviews:reviewReducer
     }
 })
 
