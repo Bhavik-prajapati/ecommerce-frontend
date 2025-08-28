@@ -1,12 +1,22 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { ShoppingCart, User, Search, Menu } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchCart } from "../store/cartSlice";
 
 const Header = () => {
-  const { items } = useSelector((state) => state.cart);
+  const { items,fetched } = useSelector((state) => state.cart);
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const dispatch=useDispatch();
+
+    useEffect(() => {
+    if (!fetched) {
+      dispatch(fetchCart());
+    }
+  }, [dispatch, fetched]);
+  
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-xl">

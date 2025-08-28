@@ -71,6 +71,7 @@ const cartSlice = createSlice({
     items: [],
     loading: false,
     error: null,
+    fetched: false
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -107,6 +108,7 @@ const cartSlice = createSlice({
         state.items = Array.isArray(action.payload)
           ? action.payload
           : action.payload.items || [];
+          state.fetched = true
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
