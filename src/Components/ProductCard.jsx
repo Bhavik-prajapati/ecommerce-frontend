@@ -12,7 +12,9 @@ const ProductCard = ({ products }) => {
   const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   const handleAddToCart = (product) => {
-    dispatch(addToCart({ product_id: product.id, quantity: 1 }));
+    dispatch(addToCart({ product_id: product.id, quantity: 1 }))
+    .then(() => toast.success("Added to cart"))
+    .catch((err) => toast.error("Error: " + err));
   };
 
   return (
