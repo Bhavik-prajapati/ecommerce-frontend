@@ -29,7 +29,7 @@ const ProtectedRoute = ({ children }) => {
     checkAuth();
   }, [token]);
 
-  if (isValid === null) return <p>Loading...</p>; // show loader while checking
+  if (isValid === null) return <p>Loading...</p>; 
   if (!isValid) return <Navigate to="/login" replace />;
 
   return children;

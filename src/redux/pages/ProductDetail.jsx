@@ -95,10 +95,10 @@ const ProductDetail = () => {
               </p>
 
               <div className="flex gap-4 flex-wrap mt-4">
-                <button onClick={handleBuySingle} className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-8 py-3 rounded-3xl shadow-lg hover:opacity-90 active:scale-95 transition font-semibold">
+                <button onClick={handleBuySingle} className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-8 py-3 rounded-3xl shadow-lg hover:opacity-90 active:scale-95 transition font-semibold cursor-pointer">
                   <CreditCard size={20} /> Buy Now
                 </button>
-                <button onClick={handleAddToCart} className="flex items-center gap-2 border-2 border-orange-500 text-orange-500 px-8 py-3 rounded-3xl shadow hover:bg-orange-50 active:scale-95 transition font-semibold">
+                <button onClick={handleAddToCart} className="flex items-center gap-2 border-2 border-orange-500 text-orange-500 px-8 py-3 rounded-3xl shadow hover:bg-orange-50 active:scale-95 transition font-semibold cursor-pointer">
                   <ShoppingCart size={20} /> Add to Cart
                 </button>
               </div>
