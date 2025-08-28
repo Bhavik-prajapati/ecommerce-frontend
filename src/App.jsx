@@ -13,7 +13,6 @@ import "react-toastify/dist/ReactToastify.css";    // ✅ only once
 const App = () => {
   return (
     <BrowserRouter>
-      {/* Toast container should be outside Routes */}
       <ToastContainer
         position="top-right"
         autoClose={1000}
@@ -27,8 +26,6 @@ const App = () => {
         theme="colored"
         limit={5}
       />
-
-
 
       <Routes>
         {/* Public Routes */}

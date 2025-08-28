@@ -8,6 +8,7 @@ import { addToCart } from "../../store/cartSlice";
 import { fetchReviews, addReview } from "../../store/reviewSlice";
 import { ShoppingCart, CreditCard } from "lucide-react";
 import { toast } from "react-toastify";
+import StarRating from "./StarRating";
 
 const ProductDetail = () => {
   const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
@@ -90,6 +91,7 @@ const ProductDetail = () => {
             <div className="flex flex-col gap-4 mt-30">
               <h2 className="text-5xl font-extrabold text-gray-800">{product.name}</h2>
               <p className="text-gray-600 text-lg">{product.description}</p>
+              <StarRating rating={product.average_rating} />
               <p className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-rose-500 to-pink-500">
                 &#8377;{product.price}
               </p>
