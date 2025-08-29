@@ -163,7 +163,7 @@ const Checkout = () => {
             dispatch(clearCartItem());
           }
 
-          navigate("/");
+          navigate("/profile?tab=orders");
         } catch (err) {
           toast.error("❌ Failed to update order");
         }
