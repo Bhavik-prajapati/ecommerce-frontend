@@ -70,6 +70,7 @@ const ProductDetail = () => {
   };
 
   const [expandedReview, setExpandedReview] = useState(null);
+
   const toggleExpand = (idx) => {
     setExpandedReview(expandedReview === idx ? null : idx);
   };
@@ -152,7 +153,7 @@ const ProductDetail = () => {
               {feedbacks.length > 0 ? (
                 feedbacks.map((fb, idx) => {
                   const isExpanded = expandedReview === idx;
-                  const limit = 100; // adjust characters
+                  const limit = 100;
 
                   return (
                     <div
@@ -175,14 +176,9 @@ const ProductDetail = () => {
                       {fb.comment.length > limit && (
                         <button
                           onClick={() => toggleExpand(idx)}
-                          className="text-blue-500 text-sm mt-2 hover:underline"
+                          className="text-blue-500 text-sm mt-2 hover:underline cursor-pointer"
                         >
-                          {isExpanded ? (
-                            <span className="cursor-pointer text-blue-500 hover:underline">Show Less</span>
-                          ) : (
-                            <span className="cursor-pointer text-blue-500 hover:underline">Show More</span>
-                          )}
-
+                          {isExpanded ? "Show Less" : "Show More"}
                         </button>
                       )}
                     </div>
@@ -194,6 +190,7 @@ const ProductDetail = () => {
                 </p>
               )}
             </div>
+
           </div>
         </div>
       </div>
