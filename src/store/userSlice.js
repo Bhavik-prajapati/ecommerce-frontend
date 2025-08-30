@@ -36,6 +36,7 @@ const userSlice = createSlice({
       })
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
         state.loading = false;
+        console.log(action.payload,"------")
         state.user = action.payload; // 👈 store profile in user
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {

@@ -9,6 +9,7 @@ import { fetchReviews, addReview } from "../../store/reviewSlice";
 import { ShoppingCart, CreditCard } from "lucide-react";
 import { toast } from "react-toastify";
 import StarRating from "./StarRating";
+import { comment } from "postcss";
 
 const ProductDetail = () => {
   const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
@@ -21,7 +22,7 @@ const ProductDetail = () => {
   const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
 
   const { product, loading, error } = useSelector((state) => state.product);
-  const token = useSelector((state) => state.auth.token); 
+  const token = useSelector((state) => state.auth.token);
   const { items: feedbacks, loading: reviewsLoading, error: reviewsError } = useSelector((state) => state.reviews);
 
   const [newFeedback, setNewFeedback] = useState("");
@@ -68,6 +69,13 @@ const ProductDetail = () => {
       .catch((err) => toast.error("Error: " + err));
   };
 
+  const [expandedReview, setExpandedReview] = useState(null);
+  const toggleExpand = (idx) => {
+    setExpandedReview(expandedReview === idx ? null : idx);
+  };
+
+
+
   if (loading) return <p className="text-center mt-20 text-lg text-gray-600 animate-pulse">Loading...</p>;
   if (error) return <p className="text-center text-red-500 mt-20 text-lg font-medium">Error: {error}</p>;
   if (!product) return <p className="text-center mt-20 text-lg text-gray-500">No product found</p>;
@@ -83,7 +91,7 @@ const ProductDetail = () => {
             {/* Image */}
             <div className="flex justify-center">
               <div className="rounded-3xl overflow-hidden shadow-2xl border border-gray-100">
-                <img src={product.image_url} alt={product.name} className="object-contain max-h-[500px] transition-transform duration-300 hover:scale-105"/>
+                <img src={product.image_url} alt={product.name} className="object-contain max-h-[500px] transition-transform duration-300 hover:scale-105" />
               </div>
             </div>
 
@@ -118,14 +126,14 @@ const ProductDetail = () => {
                 value={newFeedback}
                 onChange={(e) => setNewFeedback(e.target.value)}
                 placeholder="Write your feedback..."
-                className="flex-1 border border-gray-300 rounded-2xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                className="flex-1 border border-gray-300 rounded-2xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 text-wrap"
               />
               <select
                 value={rating}
                 onChange={(e) => setRating(Number(e.target.value))}
                 className="border border-gray-300 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400"
               >
-                {[5,4,3,2,1].map((r) => (
+                {[5, 4, 3, 2, 1].map((r) => (
                   <option key={r} value={r}>{r}★</option>
                 ))}
               </select>
@@ -142,24 +150,51 @@ const ProductDetail = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {feedbacks.length > 0 ? (
-                feedbacks.map((fb, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white border border-gray-200 shadow-md rounded-2xl p-5 hover:shadow-xl transition transform hover:-translate-y-1"
-                  >
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="font-semibold text-gray-800">{fb.user_name || 'You'}</p>
-                      <p className="text-yellow-500 font-bold">{fb.rating || 5}★</p>
+                feedbacks.map((fb, idx) => {
+                  const isExpanded = expandedReview === idx;
+                  const limit = 100; // adjust characters
+
+                  return (
+                    <div
+                      key={idx}
+                      className="bg-white border border-gray-200 shadow-md rounded-2xl p-5 hover:shadow-xl transition transform hover:-translate-y-1"
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <p className="font-semibold text-gray-800">{fb.user_name || "You"}</p>
+                        <p className="text-yellow-500 font-bold">{fb.rating || 5}★</p>
+                      </div>
+
+                      <p className="text-gray-600">
+                        {isExpanded
+                          ? fb.comment
+                          : fb.comment.length > limit
+                            ? fb.comment.slice(0, limit) + "..."
+                            : fb.comment}
+                      </p>
+
+                      {fb.comment.length > limit && (
+                        <button
+                          onClick={() => toggleExpand(idx)}
+                          className="text-blue-500 text-sm mt-2 hover:underline"
+                        >
+                          {isExpanded ? (
+                            <span className="cursor-pointer text-blue-500 hover:underline">Show Less</span>
+                          ) : (
+                            <span className="cursor-pointer text-blue-500 hover:underline">Show More</span>
+                          )}
+
+                        </button>
+                      )}
                     </div>
-                    <p className="text-gray-600">{fb.comment || fb.message}</p>
-                  </div>
-                ))
+                  );
+                })
               ) : (
-                <p className="text-gray-500 col-span-full">No reviews yet. Be the first to add one!</p>
+                <p className="text-gray-500 col-span-full">
+                  No reviews yet. Be the first to add one!
+                </p>
               )}
             </div>
           </div>
-
         </div>
       </div>
     </>

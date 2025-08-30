@@ -1,19 +1,24 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+
 const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+// 🔹 Fetch products with pagination (limit + offset)
 export const fetchProducts = createAsyncThunk(
   "product/fetchProducts",
-  async (_, { rejectWithValue }) => {
+  async ({ limit = 8, offset = 0 }, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${VITE_BACKEND_URL}products`);
-      return res.data;
+      const res = await axios.get(
+        `${VITE_BACKEND_URL}products?limit=${limit}&offset=${offset}`
+      );
+      return res.data; // { products, total }
     } catch (err) {
       return rejectWithValue(err.response?.data?.error || err.message);
     }
   }
 );
 
+// 🔹 Fetch single product by ID
 export const fetchProductById = createAsyncThunk(
   "product/fetchProductById",
   async (id, { rejectWithValue }) => {
@@ -29,8 +34,9 @@ export const fetchProductById = createAsyncThunk(
 const productSlice = createSlice({
   name: "product",
   initialState: {
-    products: [],
-    product: null,  // ✅ added for single product
+    products: [],   // list of products (paged)
+    total: 0,       // total count from backend
+    product: null,  // single product details
     loading: false,
     error: null,
   },
@@ -41,12 +47,13 @@ const productSlice = createSlice({
     resetProducts: (state) => {
       state.products = [];
       state.product = null;
+      state.total = 0;
       state.error = null;
       state.loading = false;
     },
   },
   extraReducers: (builder) => {
-    // all products
+    // 🔹 All products (with pagination)
     builder
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
@@ -54,14 +61,17 @@ const productSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = action.payload;
+
+        // ✅ Append new products instead of replacing
+        state.products = [...state.products, ...action.payload.products];
+        state.total = action.payload.total;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
 
-    // single product
+    // 🔹 Single product
     builder
       .addCase(fetchProductById.pending, (state) => {
         state.loading = true;
