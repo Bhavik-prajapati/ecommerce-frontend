@@ -35,7 +35,7 @@ const ProductCard = ({ products }) => {
               {product.name}
             </h3>
             <p className="text-sm text-gray-500 mt-1 flex-grow">
-              {product.description}
+              {product.description.length> 30 ? product.description.slice(0,35)+'...':product.description}
             </p>
             <p className="text-indigo-600 font-bold mt-2">₹{product.price}</p>
 
