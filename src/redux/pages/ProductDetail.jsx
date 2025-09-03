@@ -65,6 +65,8 @@ const ProductDetail = () => {
         setNewFeedback("");
         setRating(5); // reset rating
         toast.success("Feedback added!");
+         dispatch(fetchProductById(decryptedId));
+        dispatch(fetchReviews(decryptedId));
       })
       .catch((err) => toast.error("Error: " + err));
   };
@@ -101,7 +103,7 @@ const ProductDetail = () => {
               <h2 className="text-5xl font-extrabold text-gray-800">{product.name}</h2>
               <p className="text-gray-600 text-lg">{product.description}</p>
               <StarRating rating={product.average_rating} />
-              <p className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-rose-500 to-pink-500">
+              <p className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-rose-500 to-pink-500 text-black">
                 &#8377;{product.price}
               </p>
 
